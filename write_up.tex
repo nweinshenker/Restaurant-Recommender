@@ -1,0 +1,95 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{cite}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{hyperref}
+\usepackage{amssymb}
+\title{Restaurant Recommender using Collaborative Filtering}
+\date{2018\\ December}
+\author{Michael Siem, Nathan Weinshenker, Jack Long }
+\begin{document}
+
+\maketitle
+\section{Abstract}
+With the growth of ecommerce and internet, predictions of user preferences is a hot topic in towards Machine Learning community. Our goal is to use Yelp's open data set \href {https://www.yelp.com/dataset/challenge} {Yelp Dataset Challnge} to compare two different methods—KNN and SVD-- towards implementing collaborative filtering to similar user preferences.  Our projects goal is 
+
+\section{Data  Extraction}
+Our data required a lot of preprocessing where we acquired a conglomeration of user, business, and review date. In each data set, we have: 
+
+\section{Background Information}
+	\subsection{K Nearest Neighbors}
+	K Nearest Neighbors (k-NN for short) is a simple machine learning algorithm that categorizes an input according to a specific number k nearest neighbors
+	At it's core, k-NN is a simple classification method where little or no prior knowledge about the distribution of the data is needed. K-nearest neighbor classification was first developed to perform discriminant analysis when estimates are unknown or difficult to determine. \textbf{include citation} In
+		\subsubsection{k-NN Properties}
+		Geometrically the algorithm calculates the distance between training samples and then 
+		
+		k-NN is commonly based on the Euclidean distance between test sample and the desire point.
+		Let $(x_{i})$ be an input sample with \textit{p} feature  $(x_{i1}, x_{i2},...., x_{ip})$, $n$ be the total number of input smaples ($ i = 1,2, ... , n$) and $p$ the total number of features $(j = 1,2,...,p)$. 
+		
+		The Euclidean distance between test sample and training sample is: 
+		\
+		$d(x_{i},x_{j}) = \sqrt{(x_{i1} - x_{j1})^2 + (x_{i2} - x{j2})^2 + ... + (x_{ip} - x_{jp})^2}$
+		
+		Following determining the distance between test sample and training sample. 
+		
+		With 1 nearest neighbor rule, the predicted class of test sample is set equal to the true class of its nearest neighbor, where is a nearest neighbor to x if the distance 
+		
+		$d(m_{i},x) = min_{j}(d(m_{j},x))$
+		
+		
+		
+		\subsubsection{SVD Decomposition}
+		SVD is a matrix factorization technique that is usually used to reduce the number of features of a data set by reducing space dimensions from N to K where K < N. \\
+		Example matrix:
+			\[
+     			M=
+  				\begin{bmatrix}
+    					1 & 3 & ? & 3 & 1 \\
+    					3 & 2 & 5 & 8 & 7 \\
+    					3 & ? & 5 & ? & ? \\
+    					9 & ? & 3 & 2 & 1
+  				\end{bmatrix}
+			\]
+			\textit{ where M is sparse (i.e., “with missing entries”, not “containing a lot of zeros”)}
+			
+			
+			\begin{enumerate}
+				\item U is an n $x$ n orthogonal matrix
+				\item V is an d $x$ d orthogonal matrix
+				\item S is an n $x$ d diagonal matrix with nonnegative entries, and with the diagonal entries
+sorted from high to low 
+			\end{enumerate}
+			
+			A matrix with 
+			
+
+		
+		\begin{algorithm}
+
+		\end{algorithm}
+		
+	\subsection{Singular value Decomposition}
+	
+\section{Activities}
+	\begin{enumerate}
+			\item Download the file k-NN.m, walk through the algorithm to see how the file computes the nearest neighbors
+				\subitem look at project
+	\end{enumerate}
+
+
+\begin {thebibliography}{999}
+\bibliographystyle{plain}
+	\bibitem{1}
+	Leif E. Peterson
+	Scholarpeida
+	\href{http://www.scholarpedia.org/article/K-nearest_neighbor}{Scholarpedia}
+	
+\end{thebibliography}
+
+
+\end{document}
+
+
