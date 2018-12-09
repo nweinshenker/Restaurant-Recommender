@@ -184,6 +184,79 @@ def get_users_from_reviews(src, dest):
 
     print("Total Users: {}".format(num_users))
 
+
+def get_restaurant_subset(src, dest, num):
+    new_restaurants = {}
+    count = 0
+
+    fp = open(src, 'r')
+    data = json.load(fp)
+
+    for b_id in data:
+        new_restaurants[b_id] = data[b_id]
+
+        count += 1
+        if count > num:
+            break
+
+    fp.close()
+    fp = open(dest, 'w')
+    json.dump(new_restaurants, fp, sort_keys=True, indent=4)
+
+
+def get_user_subset(restaurant_src, user_src, user_dest):
+    restaurant_fp = open(restaurant_src, 'r')
+    restaurant_data = json.load(restaurant_fp)
+    restaurant_fp.close()
+
+    new_users = set()
+    num_users = 0
+
+    for b_id, b_info in restaurant_data.items():
+        for review in b_info['reviews']:
+            new_users.add(review['user_id'])
+            num_users += 1
+            if num_users % 10 == 0:
+                print("Read Num Users {}".format(num_users))
+
+    del restaurant_data
+    num_users = 0
+
+    user_fp = open(user_src, 'r')
+    user_data = json.load(user_fp)
+    user_fp.close()
+
+    new_user_data = {}
+    num_new_users = 0
+    for u_id, u_data in user_data.items():
+        if u_id in new_users:
+            new_user_data[u_id] = u_data
+            num_users += 1
+            if num_users % 10 == 0:
+                print("Gather Num Users {}".format(num_users))
+
+    del user_data
+
+    fp = open(user_dest, 'w')
+    json.dump(new_user_data, fp, sort_keys=True, indent=4)
+
+
+def convert_user_json(src, dest):
+    dest_users = {}
+    num_users = 0
+
+    with open(src) as fin:
+        for line in fin:
+            line_contents = json.loads(line)
+            user_id = line_contents.get('user_id')
+            dest_users[user_id] = line_contents
+            num_users += 1
+            if num_users % 1000 == 0:
+                print("Num Users: {}".format(num_users))
+
+    fp = open(dest, 'w')
+    json.dump(dest_users, fp, sort_keys=True, indent=4)
+
 if __name__ == '__main__':
     # import pdb
     # pdb.set_trace()
@@ -193,6 +266,9 @@ if __name__ == '__main__':
     # myrestaurants = get_restaurants()
     # get_reviews_for_businesses(myrestaurants)
     # process_restaurant_reviews("restaurant_reviews.json", "restaurants.json")
-    get_users_from_reviews("restaurant_reviews.json", "users.json")
+    # get_users_from_reviews("restaurant_reviews.json", "users.json")
     # replace_quotes("restautant_reviews.json", "restaurant_reviews.json")
     # remove_slash("restaurants.json", "restaurants2.json")
+    # get_restaurant_subset('restaurants.json', 'restaurants_subset.json', 5)
+    # convert_user_json('users.json', 'users_keyed.json')
+    get_user_subset('restaurants_subset.json', 'users_keyed.json', 'users_subset.json')
