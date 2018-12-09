@@ -1,4 +1,23 @@
-load fisheriris
+%% load review data
+
+fid = fopen('restaurants_subset.json');
+raw = fread(fid,inf);
+str = char(raw);
+fclose(fid);
+restaurants = jsondecode(str);
+
+fid = fopen('users_subset.json');
+raw = fread(fid, inf);
+str = char(raw);
+fclose(fid);
+users = jsondecode(str);
+
+clear str;
+clear raw;
+clear fid;
+
+
+
 %% Algorithm of K Nearest Neighbors
 % Given a data matrix which stores all our suggestive users preferences on
 % restaurants and a newpoint which is a simple point (1 x M).
