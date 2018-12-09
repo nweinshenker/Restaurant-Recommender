@@ -1,20 +1,20 @@
 %% load review data
-
-fid = fopen('restaurants_subset.json');
-raw = fread(fid,inf);
-str = char(raw);
-fclose(fid);
-restaurants = jsondecode(str);
-
-fid = fopen('users_subset.json');
-raw = fread(fid, inf);
-str = char(raw);
-fclose(fid);
-users = jsondecode(str);
-
-clear str;
-clear raw;
-clear fid;
+% 
+% fid = fopen('restaurants_subset.json');
+% raw = fread(fid,inf);
+% str = char(raw);
+% fclose(fid);
+% restaurants = jsondecode(str);
+% 
+% fid = fopen('users_subset.json');
+% raw = fread(fid, inf);
+% str = char(raw);
+% fclose(fid);
+% users = jsondecode(str);
+% 
+% clear str;
+% clear raw;
+% clear fid;
 
 
 
@@ -25,6 +25,13 @@ clear fid;
 % 2. Sort all these distances in ascending order
 % 3. Return the k data points in x that are closest to newpoint
 
+%% Test the RMSE error
+test_point = [3 , 2];
+array_point = [3 4; 5 3; 2 8];
+
+squared_error = RMSE(test_point, array_point);
+%%
+
 % Test points for the knn algorithm
 load fisheriris;
 x = meas(:,3:4);
@@ -33,7 +40,7 @@ newpoints = [5 1.45 ; 7 2 ; 4 2.5 ; 2 3.5];
 %% Test Euclidean distance and Mikowski distance
 [euclid_distance] = euclid_dist(x, newpoints(1,:));
 % [mik_distance] = Mik(x(1,:), newpoints(1,:), 10);
-bsxfun(@minus, x, newpoints(1,:)).^2
+% bsxfun(@minus, x, newpoints(1,:)).^2
 %% KNN Algorithm
 
 %// Define k and the output matrices
