@@ -34,13 +34,15 @@ users_list = plot_restaurant_user(4, r_ids, restaurants, u_ids, users_matrix);
 %% Access a random user from the user list
 test_index = randi(length(users_list), 1);
 test_user = users_list(test_index, :);
+train_user = users_list;
+train_user(test_index, :) = [];
 
 %% KNN
-[close_users, distance] = neareset_neighbors(test_user, users_list, 8);
+[close_users, distance] = neareset_neighbors(test_user, train_user, 8);
 
 %% Plot how we want
 figure()
-scatter(users_list(:,1), users_list(:,2));
+scatter(train_user(:,1), train_user(:,2));
 line(test_user(:,1),test_user(:,2),'marker','x','color','k',...
    'markersize',10,'linewidth',2)
 
@@ -81,7 +83,7 @@ end
 
 
 function [x_closest, euc_dis] = neareset_neighbors(test_user, user_list, k)
-    % Compute the distance between the test_user and the list of users
+% Compute the distance between the test_user and the list of users
     x_closest = zeros(k, size(user_list,2));
 
     ind_closest = zeros(k, 1);
@@ -95,4 +97,11 @@ function [x_closest, euc_dis] = neareset_neighbors(test_user, user_list, k)
     x_closest(:, :) = user_list(ind_closest(:), :);
     euc_dis = sorted_dist(1:k);
        
+end
+
+
+function [squared_error] = RMSE(test_point,sample_points)
+%RMSE Summary of this function goes here
+% Detailed explanation goes here
+squared_error = sqrt(sum((test_point - sample_points).^2,2)/ length(sample_points));
 end
