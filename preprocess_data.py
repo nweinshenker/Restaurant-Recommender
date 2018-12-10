@@ -192,12 +192,17 @@ def get_restaurant_subset(src, dest, num):
     fp = open(src, 'r')
     data = json.load(fp)
 
+    # sum the reviews
     for b_id in data:
-        new_restaurants[b_id] = data[b_id]
+        data[b_id]["num_reviews"] = len(data[b_id]["reviews"])
 
-        count += 1
-        if count > num:
-            break
+    # select restaurants with only more than num reviews
+    for b_id in data:
+        if data[b_id]["num_reviews"] > num:
+            new_restaurants[b_id] = data[b_id]
+            count += 1
+
+    print("Num Restaurants {} with more than {} reviews".format(count, num))
 
     fp.close()
     fp = open(dest, 'w')
@@ -257,6 +262,25 @@ def convert_user_json(src, dest):
     fp = open(dest, 'w')
     json.dump(dest_users, fp, sort_keys=True, indent=4)
 
+
+def reduce_restaurants(src, dest, num):
+   new_restaurants = {}
+   count = 0
+
+   fp = open(src, 'r')
+   data = json.load(fp)
+
+   for b_id in data:
+       new_restaurants[b_id] = data[b_id]
+
+       count += 1
+       if count > num:
+           break
+
+   fp.close()
+   fp = open(dest, 'w')
+   json.dump(new_restaurants, fp, sort_keys=True, indent=4)
+
 if __name__ == '__main__':
     # import pdb
     # pdb.set_trace()
@@ -269,6 +293,7 @@ if __name__ == '__main__':
     # get_users_from_reviews("restaurant_reviews.json", "users.json")
     # replace_quotes("restautant_reviews.json", "restaurant_reviews.json")
     # remove_slash("restaurants.json", "restaurants2.json")
-    # get_restaurant_subset('restaurants.json', 'restaurants_subset.json', 5)
+    # get_restaurant_subset('restaurants.json', 'restaurants_more_than_1000_reviews.json', 1000)
     # convert_user_json('users.json', 'users_keyed.json')
-    get_user_subset('restaurants_subset.json', 'users_keyed.json', 'users_subset.json')
+    reduce_restaurants('restaurants_more_than_1000_reviews.json', 'restaurants_1000_subset.json', 5)
+    get_user_subset('restaurants_1000_subset.json', 'users_keyed.json', 'users_1000_subset.json')

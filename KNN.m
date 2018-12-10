@@ -1,11 +1,11 @@
-%% Load review data
-fid = fopen('restaurants_subset.json');
+%% Load review data from JSON files
+fid = fopen('restaurants_1000_subset.json');
 raw = fread(fid,inf);
 str = char(raw);
 fclose(fid);
 restaurants = jsondecode(str);
 
-fid = fopen('users_subset.json');
+fid = fopen('users_1000_subset.json');
 raw = fread(fid, inf);
 str = char(raw);
 fclose(fid);
@@ -28,39 +28,32 @@ end
 
 save('user_matrix.mat', 'users_matrix', 'u_ids');
 
-%% Plotting
-users_list = get_restaurant_user(4, r_ids, restaurants, u_ids, users_matrix);
-
-%% Access a random user from the user list
-test_index = randi(length(users_list), 1);
-test_user = users_list(test_index, :);
-train_user = users_list;
-train_user(test_index, :) = [];
+%% Apply knn to a restaurant
+[users_list, ratings] = get_users_for_restaurant(1, r_ids, restaurants, u_ids, users_matrix);
+[neighbors, train_users, test_users, neighbor_ratings, train_ratings, test_ratings] = split_users(users_list, ratings, 10, 1);
+[k_users, distances, k_ratings] = neareset_neighbors(neighbors, neighbor_ratings, test_users, 8);
 
 
-%% KNN
-[close_users, distance] = neareset_neighbors(test_user, train_user, 8);
+%% 3D plot
+figure();
+scatter3(neighbors(:,1), neighbors(:,2), neighbor_ratings);
 
 %% Plot how we want
 figure()
 scatter(train_user(:,1), train_user(:,2));
 line(test_user(:,1),test_user(:,2),'marker','x','color','k',...
    'markersize',10,'linewidth',2)
-
-%// radius
 r = max(distance);
-
-%// center
 c = test_user;
-
 pos = [c-r 2*r 2*r];
 rectangle('Position',pos,'Curvature',[1 1])
 
+
 %% Helper Functions
-function [users_to_plot] =  get_restaurant_user(restaurant_i, r_ids, restaurants, u_ids, users_matrix)
+function [users, user_review] =  get_users_for_restaurant(restaurant_i, r_ids, restaurants, u_ids, users_matrix)
     r_id = r_ids(restaurant_i);
     r = restaurants.(r_id{1});
-    users_to_plot = zeros(length(r.reviews), 2);
+    users = zeros(length(r.reviews), 2);
     
     for review_i = 1:length(r.reviews)
         u_id = r.reviews(review_i).user_id;
@@ -70,33 +63,49 @@ function [users_to_plot] =  get_restaurant_user(restaurant_i, r_ids, restaurants
             u_i = find(contains(u_ids, u_id));
         end
         
-        users_to_plot(review_i, :) = users_matrix(u_i, :);        
+        users(review_i, :) = users_matrix(u_i, :);
+        user_review(review_i) = r.reviews(review_i).stars;
     end  
-%     figure();
-%     scatter(users_to_plot(:,1), users_to_plot(:,2));
 end
 
 
-function [x_closest, euc_dis] = neareset_neighbors(test_user, user_list, k)
-% Compute the distance between the test_user and the list of users
-    x_closest = zeros(k, size(user_list,2));
-
-    ind_closest = zeros(k, 1);
-
-    distance = euclid_dist(test_user, user_list);
-
-    %sort all the distances
-    [sorted_dist,Ind] = sort(distance); 
-    
+function [closest_users, euc_dis, ratings] = neareset_neighbors(neighbor_list, neighbor_ratings, user, k)
+    distance = euclid_dist(neighbor_list, user);
+    [sorted_dist, Ind] = sort(distance); 
     ind_closest = Ind(1:k);
-    x_closest(:, :) = user_list(ind_closest(:), :);
+    ratings = neighbor_ratings(ind_closest);
+    closest_users = neighbor_list(ind_closest(:), :);
     euc_dis = sorted_dist(1:k);
-       
 end
 
 
 function [squared_error] = RMSE(test_point,sample_points)
 %RMSE Summary of this function goes here
 % Detailed explanation goes here
-squared_error = sqrt(sum((test_point - sample_points).^2,2)/ length(sample_points));
+squared_error = sqrt(sum((test_point - sample_points).^2,2) / length(sample_points));
 end
+
+
+function [neighbors, train_users, test_users, neighbor_reviews, train_reviews, test_reviews] = split_users(users, reviews, num_train, num_test)
+    test_indices = randperm(length(users), num_test);
+    remaining_indices = setdiff(1:length(users), test_indices);
+    remaining_users = users(remaining_indices, :);
+    train_indices = randperm(length(remaining_users), num_train);
+    neighbor_indices = setdiff(1:length(remaining_users), train_indices);
+    
+    test_users = users(test_indices, :);
+    train_users = users(train_indices, :);
+    neighbors = users(neighbor_indices, :);
+
+    train_reviews = reviews(train_indices)';
+    test_reviews = reviews(test_indices)';
+    neighbor_reviews = reviews(neighbor_indices)';
+end
+
+
+function [d] = euclid_dist(neighbor_list, users)
+%EUCLID_DIS Summary of this function goes here
+%   Detailed explanation goes here
+    d = sqrt(sum((neighbor_list - users).^2, 2));
+end
+
