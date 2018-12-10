@@ -1,5 +1,4 @@
 %% Load review data
-
 fid = fopen('restaurants_subset.json');
 raw = fread(fid,inf);
 str = char(raw);
@@ -30,7 +29,7 @@ end
 save('user_matrix.mat', 'users_matrix', 'u_ids');
 
 %% Plotting
-users_list = plot_restaurant_user(4, r_ids, restaurants, u_ids, users_matrix);
+users_list = get_restaurant_user(4, r_ids, restaurants, u_ids, users_matrix);
 
 %% Access a random user from the user list
 test_index = randi(length(users_list), 1);
@@ -58,12 +57,9 @@ pos = [c-r 2*r 2*r];
 rectangle('Position',pos,'Curvature',[1 1])
 
 %% Helper Functions
-function [users_to_plot] =  plot_restaurant_user(restaurant_i, r_ids, restaurants, u_ids, users_matrix)
+function [users_to_plot] =  get_restaurant_user(restaurant_i, r_ids, restaurants, u_ids, users_matrix)
     r_id = r_ids(restaurant_i);
     r = restaurants.(r_id{1});
-    
-    reviewfields = fieldnames(r.reviews);
-
     users_to_plot = zeros(length(r.reviews), 2);
     
     for review_i = 1:length(r.reviews)
@@ -75,12 +71,9 @@ function [users_to_plot] =  plot_restaurant_user(restaurant_i, r_ids, restaurant
         end
         
         users_to_plot(review_i, :) = users_matrix(u_i, :);        
-    end 
-    
+    end  
 %     figure();
 %     scatter(users_to_plot(:,1), users_to_plot(:,2));
-    
-
 end
 
 
