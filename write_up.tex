@@ -1,4 +1,8 @@
-\documentclass[10pt,a4paper]{article}
+% TODO go back and rewrite the abstract
+% TODO write equations for distance metric
+% TODO write equations for majority metric
+
+\documentclass{report}
 \usepackage[utf8]{inputenc}
 \usepackage{cite}
 \usepackage{amsfonts}
@@ -7,43 +11,69 @@
 \usepackage[noend]{algpseudocode}
 \usepackage{hyperref}
 \usepackage{amssymb}
-\title{Restaurant Recommender using Collaborative Filtering}
-\date{2018\\ December}
-\author{Michael Siem, Nathan Weinshenker, Jack Long }
+
+\title{Restaurant Recommendations using K Nearest Neighbors}
+\date{December\\ 2018}
+\author{Michael Siem \\ \href{mailto:siem@wisc.edu}{siem@wisc.edu}
+	\and Nathan Weinshenker \\ \href{mailto:nweinshenker@wisc.edu}{nweinshenker@wisc.edu}
+	\and Jack Long \\ \href{mailto:jlong25@wisc.edu}{jlong25@wisc.edu}}
+
 \begin{document}
 
 \maketitle
-\section{Abstract}
-With the growth of ecommerce and internet, predictions of user preferences is a hot topic in towards Machine Learning community. Our goal is to use Yelp's open data set \href {https://www.yelp.com/dataset/challenge} {Yelp Dataset Challnge} to compare two different methods—KNN and SVD-- towards implementing collaborative filtering to similar user preferences.  Our projects goal is 
 
-\section{Data  Extraction}
-Our data required a lot of preprocessing where we acquired a conglomeration of user, business, and review date. In each data set, we have: 
+\section*{Abstract}
+With the growth of ecommerce and internet, predictions of user preferences is a hot topic in towards Machine Learning community. Our goal is to use Yelp's open data set \href {https://www.yelp.com/dataset/challenge} {Yelp Dataset Challenge} to compare two different methods—KNN and SVD-- towards implementing collaborative filtering to similar user preferences.  Our projects goal is 
 
-\section{Background Information}
-	\subsection{K Nearest Neighbors}
-	K Nearest Neighbors (k-NN for short) is a simple machine learning algorithm that categorizes an input according to a specific number k nearest neighbors
-	At it's core, k-NN is a simple classification method where little or no prior knowledge about the distribution of the data is needed. K-nearest neighbor classification was first developed to perform discriminant analysis when estimates are unknown or difficult to determine. \textbf{include citation} In
-		\subsubsection{k-NN Properties}
-		Geometrically the algorithm calculates the distance between training samples and then 
+%\section*{Data  Extraction}
+%Our data required a lot of preprocessing where we acquired a conglomeration of user, business, and review date. In each data set, we have: 
+
+\section*{Background Information}
+
+Recommendation systems are a vital tool for providing users with personalized suggestions for items such as movies, music, and restaurants.
+Product reviews data is widely accessible on services such as Spotify, Amazon, and Yelp.
+There are two approaches that can be used to make recommendations to users based on this data, memory based, and model based. This activity will be focused on the former and touch briefly on the latter.
+
+Model based 
+	
+\subsection*{K Nearest Neighbors}
+	
+K Nearest Neighbors (kNN) is a memory based collaborative filter that relies upon comparing features of a user or item to other users or items to receive a recommendation. 
+KNN 
+
+\subsubsection*{The Distance Function}
+
+Several methods can be used to evaluate the distances between the neighbors and the point of interest.
+We will first look at the use of the Euclidean distance or the straight-line distance between the points.
+
+\begin{equation}
+d(x_{i},x_{j}) = \sqrt{(x_{i1} - x_{j1})^2 + (x_{i2} - x{j2})^2 + ... + (x_{ip} - x_{jp})^2}
+\end{equation}
+
+\subsubsection*{Estimating the rating}
+At it's core, k-NN is a simple classification method where little or no prior knowledge about the distribution of the data is needed. K-nearest neighbor classification was first developed to perform discriminant analysis when estimates are unknown or difficult to determine. \textbf{include citation} In
 		
-		k-NN is commonly based on the Euclidean distance between test sample and the desire point.
-		Let $(x_{i})$ be an input sample with \textit{p} feature  $(x_{i1}, x_{i2},...., x_{ip})$, $n$ be the total number of input smaples ($ i = 1,2, ... , n$) and $p$ the total number of features $(j = 1,2,...,p)$. 
+\subsubsection**{k-NN Properties}
 		
-		The Euclidean distance between test sample and training sample is: 
-		\
-		$d(x_{i},x_{j}) = \sqrt{(x_{i1} - x_{j1})^2 + (x_{i2} - x{j2})^2 + ... + (x_{ip} - x_{jp})^2}$
+Geometrically the algorithm calculates the distance between training samples and then 
 		
-		Following determining the distance between test sample and training sample. 
+k-NN is commonly based on the Euclidean distance between test sample and the desire point.
+		Let $(x_{i})$ be an input sample with \textit{p} feature  $(x_{i1}, x_{i2},...., x_{ip})$, $n$ be the total number of input samples ($ i = 1,2, ... , n$) and $p$ the total number of features $(j = 1,2,...,p)$. 
 		
-		With 1 nearest neighbor rule, the predicted class of test sample is set equal to the true class of its nearest neighbor, where is a nearest neighbor to x if the distance 
+The Euclidean distance between test sample and training sample is: 
+\\
+
 		
-		$d(m_{i},x) = min_{j}(d(m_{j},x))$
+Following determining the distance between test sample and training sample. 
+With 1 nearest neighbor rule, the predicted class of test sample is set equal to the true class of its nearest neighbor, where is a nearest neighbor to x if the distance 
 		
+$d(m_{i},x) = min_{j}(d(m_{j},x))$
 		
+\subsubsection**{SVD Decomposition}
 		
-		\subsubsection{SVD Decomposition}
-		SVD is a matrix factorization technique that is usually used to reduce the number of features of a data set by reducing space dimensions from N to K where K < N. \\
-		Example matrix:
+SVD is a matrix factorization technique that is usually used to reduce the number of features of a data set by reducing space dimensions from N to K where K < N. \\
+		
+Example matrix:
 			\[
      			M=
   				\begin{bmatrix}
@@ -71,14 +101,30 @@ sorted from high to low
 
 		\end{algorithm}
 		
-	\subsection{Singular value Decomposition}
-	
-\section{Activities}
-	\begin{enumerate}
-			\item Download the file k-NN.m, walk through the algorithm to see how the file computes the nearest neighbors
-				\subitem look at project
-	\end{enumerate}
+\section*{Warm-up}
 
+\begin{enumerate}
+
+\item Draw Voronoi diagram
+	
+\end{enumerate}
+
+\section*{Main Activity}
+
+The main activity will be evaluating a KNN as a restaurant recommendation system using the Yelp dataset from \href{https://www.yelp.com/dataset}{https://www.yelp.com/dataset}.
+The dataset originally contains 5,996,996 reviews for 188,593 businesses in 10 metropolitan areas.
+We preprocessed the data set to narrow it down to 1 restaurant with 500 reviews for the activity, therefore we will be doing a user-user comparison.  
+The activity will done using the Matlab script KNN.m.
+
+\begin{enumerate}
+
+\item Choosing K value
+
+\item Evaluate different distance functions
+
+\item Evaluate different classification metrics
+
+\end{enumerate}
 
 \begin {thebibliography}{999}
 \bibliographystyle{plain}
