@@ -1,59 +1,108 @@
-%% Load review data from JSON files
-fid = fopen('restaurants_1000_subset.json');
-raw = fread(fid,inf);
-str = char(raw);
-fclose(fid);
-restaurants = jsondecode(str);
+close all;
 
-fid = fopen('users_1000_subset.json');
-raw = fread(fid, inf);
-str = char(raw);
-fclose(fid);
-users = jsondecode(str);
+%% Code to preprocess some data
+% 
+% %% Load review data from JSON files
+% fid = fopen('restaurants_1000_subset.json');
+% raw = fread(fid,inf);
+% str = char(raw);
+% fclose(fid);
+% restaurants = jsondecode(str);
+% 
+% fid = fopen('users_1000_subset.json');
+% raw = fread(fid, inf);
+% str = char(raw);
+% fclose(fid);
+% users = jsondecode(str);
+% 
+% clear str;
+% clear raw;
+% clear fid;
+% 
+% 
+% %% Make data matrix
+% r_ids = fieldnames(restaurants);
+% u_ids = fieldnames(users);
+% users_matrix = zeros(numel(u_ids), 2);
+% 
+% for i=1:numel(u_ids)
+%     avg_stars(i) = users.(u_ids{i}).average_stars;
+%     review_count(i) = users.(u_ids{i}).review_count;
+%     useful(i) = users.(u_ids{i}).useful;
+%     fans(i) = users.(u_ids{i}).fans;
+% end
+% 
+% avg_stars = avg_stars';
+% review_count = review_count';
+% useful = useful';
+% 
+% users_table = table(avg_stars, review_count, useful);
+% users_table.Properties.RowNames = u_ids;
+% 
+% save('user_matrix.mat', 'users_table');
 
-clear str;
-clear raw;
-clear fid;
-
-
-%% Make data matrix
-r_ids = fieldnames(restaurants);
-u_ids = fieldnames(users);
-users_matrix = zeros(numel(u_ids), 2);
-
-for i=1:numel(u_ids)
-  users_matrix(i, 1) = users.(u_ids{i}).average_stars;
-  users_matrix(i, 2) = users.(u_ids{i}).review_count;
-end
-
-save('user_matrix.mat', 'users_matrix', 'u_ids');
+load('user_matrix.mat');
 
 %% Apply knn to a restaurant
-[users_list, ratings] = get_users_for_restaurant(1, r_ids, restaurants, u_ids, users_matrix);
-[neighbors, train_users, test_users, neighbor_ratings, train_ratings, test_ratings] = split_users(users_list, ratings, 10, 1);
-[k_users, distances, k_ratings] = neareset_neighbors(neighbors, neighbor_ratings, test_users, 8);
+[users_list, ratings] = get_users_for_restaurant(1, r_ids, restaurants, users_table);
+[neighbors, test_users, neighbor_ratings, test_ratings] = split_users(users_list, ratings, 10);
+
+
+%% Probelm 1: Varying the K Value
+% k = 1;
+% 
+% for neighbor_i = 1:length(neighbor_ratings)
+%     [k_users, distances, k_ratings] = neareset_neighbors(neighbors, neighbor_ratings, neighbors(neighbor_i,:), k);
+%     rating = compute_rating_majority(k_ratings);
+%     rating_diff(neighbor_i) = rating - neighbor_ratings(neighbor_i);
+% end
+% 
+% figure();
+% plot(1:length(neighbors), rating_diff);
+% title('Rating Difference');
+% xlabel('User');
+% ylabel('Difference in actual vs predicted rating on neighbors');
+% 
+% k_errors(k) = nnz(rating_diff);
+
+%% Solution 1
+for k = 1:50
+    for neighbor_i = 1:length(neighbor_ratings)
+        [k_users, distances, k_ratings] = neareset_neighbors(neighbors, neighbor_ratings, neighbors(neighbor_i,:), k);
+        rating = compute_rating_majority(k_ratings);
+        rating_diff(neighbor_i) = rating - neighbor_ratings(neighbor_i);
+    end
+end
+
+figure();
+plot(1:50, k_errors);
+xlabel('k');
+ylabel('Number of Misratings');
+title('Number Errors');
 
 
 %% 3D plot
 figure();
-scatter3(neighbors(:,1), neighbors(:,2), neighbor_ratings);
+scatter(neighbors.useful, neighbors.review_count, 15, neighbor_ratings);
+title('Users that have rated the restaurant');
 
 %% Plot how we want
-figure()
-scatter(train_user(:,1), train_user(:,2));
-line(test_user(:,1),test_user(:,2),'marker','x','color','k',...
-   'markersize',10,'linewidth',2)
-r = max(distance);
-c = test_user;
-pos = [c-r 2*r 2*r];
-rectangle('Position',pos,'Curvature',[1 1])
+% figure()
+% scatter(neighbors(:,1), neighbors(:,2));
+% line(test_user(:,1),test_user(:,2),'marker','x','color','k',...
+%    'markersize',10,'linewidth',2)
+% r = max(distance);
+% c = test_user;
+% pos = [c-r 2*r 2*r];
+% rectangle('Position',pos,'Curvature',[1 1])
 
 
-%% Helper Functions
-function [users, user_review] =  get_users_for_restaurant(restaurant_i, r_ids, restaurants, u_ids, users_matrix)
+%% Data Helper Functions
+function [ret_users, ret_user_review] =  get_users_for_restaurant(restaurant_i, r_ids, restaurants, users_table)
     r_id = r_ids(restaurant_i);
     r = restaurants.(r_id{1});
-    users = zeros(length(r.reviews), 2);
+    
+    u_ids = users_table.Properties.RowNames;
     
     for review_i = 1:length(r.reviews)
         u_id = r.reviews(review_i).user_id;
@@ -63,12 +112,37 @@ function [users, user_review] =  get_users_for_restaurant(restaurant_i, r_ids, r
             u_i = find(contains(u_ids, u_id));
         end
         
-        users(review_i, :) = users_matrix(u_i, :);
+        user_indices(review_i) = u_i;
+        users(review_i, :) = users_table(u_i, :);
         user_review(review_i) = r.reviews(review_i).stars;
-    end  
+    end 
+    
+    % reduce number of users
+    ret_users = users(1:500, :);
+    ret_user_review = user_review(1:500);
 end
 
 
+function [neighbors, test_users, neighbor_reviews, test_reviews] = split_users(users, reviews, num_test)
+    test_indices = randperm(length(reviews), num_test);
+    neighbor_indices = setdiff(1:length(reviews), test_indices);
+    
+    test_users = users(test_indices, :);
+    neighbors = users(neighbor_indices, :);
+
+    test_reviews = reviews(test_indices)';
+    neighbor_reviews = reviews(neighbor_indices)';
+end
+
+
+function [user, user_rating] = get_random_user(neighbors, neighbor_ratings)
+    rand_i = randi(length(neighbor_ratings), 1);
+    user = neighbors(rand_i);
+    user_rating = neighbors(rand_i);
+end
+
+
+%% KNN helper functions
 function [closest_users, euc_dis, ratings] = neareset_neighbors(neighbor_list, neighbor_ratings, user, k)
     distance = euclid_dist(neighbor_list, user);
     [sorted_dist, Ind] = sort(distance); 
@@ -86,26 +160,15 @@ squared_error = sqrt(sum((test_point - sample_points).^2,2) / length(sample_poin
 end
 
 
-function [neighbors, train_users, test_users, neighbor_reviews, train_reviews, test_reviews] = split_users(users, reviews, num_train, num_test)
-    test_indices = randperm(length(users), num_test);
-    remaining_indices = setdiff(1:length(users), test_indices);
-    remaining_users = users(remaining_indices, :);
-    train_indices = randperm(length(remaining_users), num_train);
-    neighbor_indices = setdiff(1:length(remaining_users), train_indices);
-    
-    test_users = users(test_indices, :);
-    train_users = users(train_indices, :);
-    neighbors = users(neighbor_indices, :);
-
-    train_reviews = reviews(train_indices)';
-    test_reviews = reviews(test_indices)';
-    neighbor_reviews = reviews(neighbor_indices)';
-end
-
-
 function [d] = euclid_dist(neighbor_list, users)
 %EUCLID_DIS Summary of this function goes here
 %   Detailed explanation goes here
-    d = sqrt(sum((neighbor_list - users).^2, 2));
+neighbor_list = table2array(neighbor_list);
+users = table2array(users);
+d = sqrt(sum((neighbor_list - users).^2, 2));
 end
 
+
+function rating = compute_rating_majority(rating)
+    rating = mode(rating);
+end
