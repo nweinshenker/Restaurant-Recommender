@@ -1,5 +1,4 @@
 %% Load review data
-
 fid = fopen('restaurants_subset.json');
 raw = fread(fid,inf);
 str = char(raw);
@@ -38,7 +37,14 @@ test_user = users_list(test_index, :);
 train_user = users_list;
 train_user(test_index, :) = [];
 
+%% Test the manhattan distance
+test_array = [3 2];
+train_array = [4 2; 1 2; 5 4];
+[distance2] = manhat_distance(test_array,train_array);
 
+%% Test the classify the built in knn_classifer that matlab offers
+%  Primarily want to test how this affects a visualization of the knn code
+classify_query(test_user, train_user);
 %% KNN
 [close_users, distance] = neareset_neighbors(test_user, train_user, 8);
 
@@ -78,9 +84,21 @@ function [users_to_plot] =  plot_restaurant_user(restaurant_i, r_ids, restaurant
     end 
     
 %     figure();
-%     scatter(users_to_plot(:,1), users_to_plot(:,2));
-    
+%     scatter(users_to_plot(:,1), users_to_plot(:,2));  
 
+end
+
+function classify_query(test_user,train_user)
+    figure()
+    scatter(train_user(:,1), train_user(:,2));
+    line(test_user(:,1),test_user(:,2),'marker','x','color','k',...
+       'markersize',10,'linewidth',2);
+
+    Mdl = KDTreeSearcher(train_user);
+
+    [n,d] = knnsearch(Mdl,test_user,'k',10);
+    line(user_matrix(n,1),user_matrix(n,2),'color',[.5 .5 .5],'marker','o',...
+        'linestyle','none','markersize',10);
 end
 
 
@@ -102,8 +120,33 @@ function [x_closest, euc_dis] = neareset_neighbors(test_user, user_list, k)
 end
 
 
+function [distance] = manhat_distance(test_point, sample_points)
+    % Computes |x1 - x2| + |y1 - y2|
+    distance = zeros(length(sample_points),1);
+    for i = 1:length(sample_points)
+        distance(i,1) = sum(abs((test_point - sample_points(i,:))));
+    end
+end
+
+
 function [squared_error] = RMSE(test_point,sample_points)
 %RMSE Summary of this function goes here
 % Detailed explanation goes here
 squared_error = sqrt(sum((test_point - sample_points).^2,2)/ length(sample_points));
 end
+
+
+% %% Make a data matrix for multiple restaurants
+% function [user_matrix] = restaurants_user_matrix(restaurants) 
+%     r_ids = fieldnames(restaurants);
+%     u_ids = fieldnames(users);
+%     users_matrix = zeros(numel(u_ids), 2);
+% 
+%     for i=1:numel(u_ids)
+%       users_matrix(i, 1) = users.(u_ids{i}).average_stars;
+%       users_matrix(i, 2) = users.(u_ids{i}).review_count;
+%     end
+%     
+%     save('user_matrix.mat', 'users_matrix', 'u_ids');
+% 
+% end
