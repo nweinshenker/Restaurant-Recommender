@@ -72,7 +72,6 @@ for k = 1:50
         rating = compute_rating_majority(k_ratings);
         rating_diff(neighbor_i) = rating - neighbor_ratings(neighbor_i);
     end
->>>>>>> 2637a4f7ee1f67e79f6dbd3ba67d2d44d870cfee
 end
 
 figure();
