@@ -173,6 +173,10 @@ Here are a couple activites to warm up on k-NN
 	
 
 \item Draw a Voronoi diagram
+\begin{figure}[H]
+		\centering
+		\includegraphics{image/Picture2.png}
+	\end{figure}
 \end{enumerate}
 
 \section*{Main Activity}
@@ -182,7 +186,28 @@ The dataset originally contains 5,996,996 reviews for 188,593 businesses in 10 m
 We preprocessed the data set to narrow it down to 1 restaurant with 500 reviews for the activity, therefore we will be doing a user-user comparison.  
 The activity will done using the Matlab script KNN.m.
 
+
 \begin{enumerate}
+  \item Navigate to the code section indicated by Problem 1. Uncomment the code section and run the program, it should plot a list of data points and a circle.What do you observe about k - Nearest Neighbors?
+  \begin{enumerate}
+    \item Change the k value to be k = 1 and k = some large value. How does changing the value of k effect the decision of boundary?
+    \item  Depending on if k is small or large, would you expect the model to overfit or underfit the data?
+  \end{enumerate}
+  \item When deriving K-NN, the distance metric we used was Euclidean distance for determining the distances between the neighbors and the point of interest.
+  \begin{enumerate}
+    \item If we change the distance function to be the Manhattan distance, how would you expect the decision boundary to change?
+    \item What are some reasons you think different distance metrics are used for determining K-NN's decision boundaries?
+     \item How you think that chosen distance function can affect the classification accuracy?\cite{9}
+  \end{enumerate}
+  \begin{enumerate}
+  	\item In Part 1, our data set only had 2 features. 
+  \end{enumerate}
+  
+  
+\end{enumerate}
+
+\begin{enumerate}
+
 
 \item Choosing K value
 
@@ -192,8 +217,6 @@ The activity will done using the Matlab script KNN.m.
 
 \end{enumerate}
 
-%\section*{Future Work}
-%When classifying users some 
 
 \begin {thebibliography}{999}
 \bibliographystyle{plain}
@@ -236,7 +259,40 @@ The activity will done using the Matlab script KNN.m.
 	 GroupLens: An Open Architecture for Collaborative
 Filtering of Netnews
 	\href{http://delivery.acm.org/10.1145/200000/192905/p175-resnick.pdf?ip=72.33.2.208&id=192905&acc=PUBLIC&key=066E7B0AFE2DCD37%2E4D4702B0C3E38B35%2E4D4702B0C3E38B35%2E4D4702B0C3E38B35&__acm__=1544639596_64ed1d6ccc2584122e84fe8f012afa64}{Collborative Filtering}
+	 \bibitem{9}
+	 Li-Yu Hu Min-Wei Huang, Shih-Wen Ke
+	 The distance function effect on k-nearest neighbor classification for medical datasets
+	\href{https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4978658/}{Distance Function}
 \end{thebibliography}
+
+\section*{Solutions}
+\subsection*{Warm up Activity}
+\subsection*{Main Activity}
+\begin{enumerate}
+  \item SOLUTION: Answers may vary
+  \begin{enumerate}
+    \item SOLUTION: Increasing k makes the circle grow since it requires more points to be included in the neighborhood
+    \\
+    Decreasing k shrinks the circle
+    \item SOLUTION:  When K increase , the model becomes simpler because the neighborhoods become larger with more data points. This will make the model under-fit the data.
+\\
+When K decrease, we encounter the 1-Nearest Neighbor problem so are model should overfit the data because the nearest neighbor should be our sample point.
+  \end{enumerate}
+  \item When deriving K-NN, the distance metric we used was Euclidean distance for determining the distances between the neighbors and the point of interest.
+  \begin{enumerate}
+    \item SOLUTION: Euclidean Distance is represented by the $l_{2}$ norm. Changing the distance metric to Manhattan distance should create a more rigid boundary represented by the $l_{2}$ norm.
+    \item What are some reasons you think different distance metrics are used for determining K-NN's decision boundaries?
+    \item Describe the difference in error rate from Euclidean to Manhattan distance. Does this make sense why 
+  \end{enumerate}
+  \begin{enumerate}
+  	\item SOLUTION: Depending on the dataset, different distance functions can have a better classification accuracy. Depending on the dimensions of a the training data, some points may be farther depending on the distance function.
+  \end{enumerate}
+  
+  
+\end{enumerate}
+
+
+
 \end{document}
 
 
