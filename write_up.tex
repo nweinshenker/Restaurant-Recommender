@@ -54,9 +54,18 @@ items in an information domain, such as corporate e-mail, based on
 other users’ opinions or actions\cite{6}. With the growth of the Internet, collaborative filters systems have grown in scope and popularity with big name tech companies like Netflix, Amazon, and Yahoo. Today, collaborative filtering systems are used by many companies to shift through the mountains of readily available data.
 
 \subsubsection{Nearest Neighbor Classification Derivation}
-To understand k-NN, some necessary background information is need in probability. Here are some basic probability definitions . \cite{4}
+To understand k-NN, some necessary background information is need in probability. Here are some basic probability definitions and terminology . \cite{4}
 \begin{enumerate}
 	\item P(A $|$ B), the conditional probability, is the probability of A given B
+	\item $h : X \in 0, 1$  \qquad  \qquad \textrm{binary classification rule; 
+	"classifier" }
+	\item \begin{equation*}
+	  \textbf{1}_{h_(x) \neq y} = \begin{cases}
+	        0 & h(x) = y 
+	        \\ 
+	        1 &  otherwise.
+	        \end{cases} \qquad \textrm{Loss Function}
+	 \end{equation*}
 \end{enumerate}
 Now for performing k-\textbf{nearest neighbor classification },  lets assume X = training data; Y = class labels of X; and x = unknown sample.
 \newline \newline
@@ -71,25 +80,23 @@ Next, to perform k-NN, we need to sort all the distances for our set D , i.e,
 \begin{equation}
 d(x,x_{i}) <= d(x,x_{i+1})
 \end{equation}
-The first k $\epsilon$ N points (where N is set of closest distances) follow this  enumeration 
+The first k $\epsilon$ N points (where N is set of k  closest distances) follow this  enumeration 
 \begin{equation}
 N_{k}(x) = (x_{1}, y_{1}), (x_{2}, y_{2}), ... , (x_{k}, y_{k}) 
 \end{equation} 
 \textsubscript{this is called a k-neighborhood of x (in D)}. \newline\newline
-\textbf{TODO: Work on classification rule}
-Our classifier will be defined as the probability of label y given our unknown sample = 
+Our classifier will be defined as:
 \begin{equation}
-\hat{p}(Y = y | x) = \frac{1}{k} \sum_{x',y' \epsilon N_{k}(x) }  I(y = y')
+\hat{p}(Y = y | x) = \frac{1}{k} \sum_{1}^{n} \textbf{1}_{h_(x_{i}) \neq y} 
 \end{equation}
 and then we will predict the class of a user using the maximal predicted probability.
 \begin{equation}
-\hat{Y}(x) = argmax_{y \epsilon Y} \hat{p}(Y = y |x)
+\hat{Y}(x) = argmax  \hat{p} (Y = y |x)
 \end{equation}
 \textsubscript{i.e., the  new label will be assign w.r.t the majority of classes among neighbors}. \newline\newline
 
 \subsubsection*{Classification Decision Rule}
-With defining our distance metric and classification rule, we can now test how well our sample point $x$ is classified.
-With 1-nearest neighbor rule, the predicted class of test sample x is set equal to the true class y of its nearest neighbor, where $mi$ is a nearest neighbor to x if the distance \cite{7}.
+With defining our distance metric and classification rule, we can now test how well our sample point $x$ is classified. With  k = 1 for KNN, the predicted class of test sample x is set equal to the true class y of its nearest neighbor, where $m_{i}$ is a nearest neighbor to x if the distance \cite{7}
 \begin{equation}
 d(m_{i},x) = min_{j}(d(m_{j},x))
 \end{equation} 
