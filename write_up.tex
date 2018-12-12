@@ -27,14 +27,20 @@
 \section*{Abstract}
 With the growth of ecommerce and internet, predictions of user preferences is a hot topic in todays Machine Learning community. Our goal is to use Yelp's open data set \href {https://www.yelp.com/dataset/challenge} {Yelp Dataset Challenge} as prediction measurement of potential restaurants reviewers. We will go into depth on the implementation of k Nearest Neighbors for building a recommendation system for users of similar preferences.  
 
-
 \section*{Background Information}
 
 Recommendation systems are a vital tool for providing users with personalized suggestions for items such as movies, music, and restaurants.
-Product reviews data is widely accessible on services such as Spotify, Amazon, and Yelp.
-There are two approaches that can be used to make recommendations to users based on this data, memory based, and model based. This activity will be focused on the former and touch briefly on the latter \cite{5}.
-\newline
-
+Product review data is widely accessible on services such as Spotify, Amazon, and Yelp.
+There are two approaches that can be used to make recommendations to users based on this data, memory based, and model based.
+Model based systems rely on approximating the data and determining features that are most likely to influence a users rating on an item. 
+Matrix Decomposition methods such a SVD are an example of a model based system used to provide recommendations.
+Over time models can become outdated and need to be updated to provide a more accurate recommendation.
+Memory based systems rely upon maintaining data and finding users or items that are similar to each other.
+The advantage of a memory based system is it doesn't learn a model or make any assumptions about the data so if trends change the recommendation system will adapt.
+Memory based systems can do a user-user comparison or and item-item comparison.
+In the user-user comparison, a user is compared to other users that have rated an item and in the item-item comparison, an item is compared to other items a user has rated to predict the rating the user will give it.
+We will further study a memory based recommendation systems, K Nearest Neighbors.
+\cite{5}.
 	
 \subsection*{K Nearest Neighbors}
 	
@@ -136,12 +142,12 @@ Here are a couple activites to warm up on k-NN
 	\item The below data are 2D points with their classification. If we were to add the point (1,1) using 3-NN (K = 3) what would be the classification of this point?
 	\begin{figure}[H]
 		\centering
-		\includegraphics{../image/Picture1.png}
+		\includegraphics{image/Picture1.png}
 	\end{figure}
 	\item Below is a diagram of points with classifications of either Red Triangle or Blue Square. A new point is introduced as the green circle. If the correct classification of the circle is Red Triangle, what k-values would misclassify this point? What does this tell us about having too large a k value
 	\begin{figure}[H]
 		\centering
-		\includegraphics{../image/Picture2.png}
+		\includegraphics{image/Picture2.png}
 	\end{figure}
 	\item How does raising the k value affect performance in data sets with a lot of noise? 
 	\item Consider taking a 2D data set and then transforming it to fit into a 3D space. How would raising the dimension of K-NN effect the accuracy of the classifier?
