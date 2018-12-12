@@ -1,7 +1,6 @@
 % TODO go back and rewrite the abstract
 % TODO write equations for distance metric
 % TODO write equations for majority metric
-% TODO eager vs lazy learners
 
 \documentclass{report}
 \usepackage[utf8]{inputenc}
@@ -11,8 +10,11 @@
 \usepackage{algorithm, algpseudocode}
 \usepackage{hyperref}
 \usepackage{amssymb}
+\usepackage{graphicx}
+\graphicspath{{../pdf/}{D:}}
 
-\title{Restaurant Recommendations using K Nearest Neighbors}
+
+\title{Restaurant Recommendations using Collaborative Filtering}
 \date{December\\ 2018}
 \author{Michael Siem \\ \href{mailto:siem@wisc.edu}{siem@wisc.edu}
 	\and Nathan Weinshenker \\ \href{mailto:nweinshenker@wisc.edu}{nweinshenker@wisc.edu}
@@ -32,23 +34,47 @@ With the growth of ecommerce and internet, predictions of user preferences is a 
 
 Recommendation systems are a vital tool for providing users with personalized suggestions for items such as movies, music, and restaurants.
 Product reviews data is widely accessible on services such as Spotify, Amazon, and Yelp.
-There are two approaches that can be used to make recommendations to users based on this data, memory based, and model based. This activity will be focused on the former and touch briefly on the latter.
+There are two approaches that can be used to make recommendations to users based on this data, memory based, and model based. This activity will be focused on the former and touch briefly on the latter \cite{5}.
+\newline
 
-Model based 
 	
 \subsection*{K Nearest Neighbors}
 	
 K Nearest Neighbors (k-NN) is a memory based collaborative filter that relies upon comparing features of a user or item to other users or items to receive a recommendation. 
-k-NN is also a \textbf{non-parametric} learning algorithm. Since k-NN has little or no prior knowledge about the distribution data, k-NN  builds the model structure based on the training data. This allows the algorithm to be highly versatile and simple to perform with little to no information. [\textbf{include citation}
+k-NN is also a \textbf{non-parametric} learning algorithm. Since k-NN has little or no prior knowledge about the distribution data, k-NN  builds the model structure based on the training data. This allows the algorithm to be highly versatile and simple to perform with little to no information \cite{3}. 
 
 \subsubsection*{History of Nearest Neighbors}
 
-In 1992, Paul Resnick and fellow researchers at the University of Minnesota first studied collaborative filtering systems under the GroupLens project. [\textbf{Include University of Minnesota slides}] In collaboration with developers at a company named Tapesty, GroupLens help build upon a query engine that could compare ratings. All of this came to fruition out of the need to handle the large amounts of email and messages posted to newsgroups. With the growth of the Internet, collaborative filters systems have developed grown in usage by big name tech companies like Netflix, Amazon, and Yahoo as predictive features help capture larger potential customers base.
+In 1992, Paul Resnick and fellow researchers at the University of Minnesota first studied collaborative filtering systems under the GroupLens project\cite{2}. In collaboration with developers at a company named Tapesty, GroupLens help build upon a query engine that could compare ratings. All of this came to fruition out of the need to handle the large amounts of email and messages posted to newsgroups. With the growth of the Internet, collaborative filters systems have developed grown in usage by big name tech companies like Netflix, Amazon, and Yahoo as predictive features help capture larger potential customer base.
 
-\paragraph{Nearest Neighbor algorithm}
+\subsubsection{Nearest Neighbor Classification Derivation}
+To understand k-NN, some necessary background information is required on probability. Here are some basic definitions of probability definitions. \cite{4}
+\begin{enumerate}
+	\item P(A | B), the conditional probability, is the probability of A given B
+\end{enumerate}
+Now lets assume that for  k-\textbf{nearest neighbor classification } we are using  euclidean distance; X:training data; Y: class labels of X; x:unknown sample.
+Our k-nearest classifier will be as follow:
+Let $d$ be a distance measure for our dataset $D$ where
+\begin{equation}
+D = (x_{1}, y_{1}), (x_{2}, y_{2}), ... , (x_{n}, y_{n})
+\end{equation}
+all the distance from x and D should be sorted in increasing distance , i.e,
+$d(x,x_{i}) <= d(x,x_{i+1})$ \newline
+The first $k \epsilon N$ points (where N is ordered distances) follow this  enumeration 
+\begin{equation}
+N_{k}(x) = (x_{1}, y_{1}), (x_{2}, y_{2}), ... , (x_{k}, y_{k}) 
+\end{equation} 
+\textsubscript{this is called a k-neighborhood of x (in D)}. \newline\newline
+We will now define our classifier as 
+\begin{equation}
+\hat{p}(Y = y | x) = \frac{1}{k} \sum_{x',y' \epsilon N_{k}(x) }  I(y = y')
+\end{equation}
+and then we will predict the class of a user using the maximal predicted probability.
+\begin{equation}
+\text{ (i.e., the majority class with repect to the classes of the neighbors)}
+\end{equation}
 
-
-\subsubsection*{ Our K Nearest Neighbor Algorithm}
+\subsubsection{K Nearest Neighbor Pseudocode }
 \begin{algorithm}
   \caption{K Nearest Neighbour}
   \begin{algorithmic}
@@ -113,10 +139,25 @@ $d(m_{i},x) = min_{j}(d(m_{j},x))$
 
 
 \section*{Warm-up}
-
 \begin{enumerate}
-
-
+	\item The below data are 2D points with their classification. If we were to add the point (1,1) using 3-NN (K = 3) what would be the classification of this point?
+	\begin{figure}[H]
+		\centering
+		\includegraphics{../image/Picture1.png}
+	\end{figure}
+	\item Below is a diagram of points with classifications of either Red Triangle or Blue Square. A new point is introduced as the green circle. If the correct classification of the circle is Red Triangle, what k-values would misclassify this point? What does this tell us about having too large a k value
+	\begin{figure}[H]
+		\centering
+		\includegraphics{../image/Picture2.png}
+	\end{figure}
+	\item How does raising the k value affect performance in data sets with a lot of noise? 
+	\item Consider taking a 2D data set and then transforming it to fit into a 3D space. How would raising the dimension of K-NN effect the accuracy of the classifier?
+	\item If the Minkowski distance is defined as: 
+	\begin{equation}
+	D (x, y) = ((\sum_{i}^{m}| x_{i} - y_{i}|^p)^\frac{1}{p})
+	\end{equation}
+     then when would you use Minkowski distance over Euclidean Distance?
+	
 
 \item Draw Voronoi diagram
 \end{enumerate}
@@ -132,7 +173,7 @@ The activity will done using the Matlab script KNN.m.
 
 \item Choosing K value
 
-\item Using different distance functions
+\item Evaluate different distance functions
 
 \item Evaluate different classification metrics
 
@@ -144,7 +185,25 @@ The activity will done using the Matlab script KNN.m.
 	Leif E. Peterson
 	Scholarpeida
 	\href{http://www.scholarpedia.org/article/K-nearest_neighbor}{Scholarpedia}
-	
+	\bibitem{2}
+	Joseph A. Konstan
+    University of Minnesota
+    Introduction to Recommender Systems
+	\href{https://www-users.cs.umn.edu/~konstan/SIGMOD-2008-Tut.pdf}{UMN SIGMOD-2008}
+	\bibitem{3}
+	Benjamin Soltoff
+    University of Chicago
+    Statistical learning: non-parametric methods MACS-3100
+	\href{https://cfss.uchicago.edu/persp010_nonparametric.html#objectives}{University Chicago MACS-3100}
+	\bibitem{4}
+	Lars Schmidt-Thieme
+	 Institute for Computer Science University of Hildesheim
+	 \href{https://www.ismll.uni-hildesheim.de/lehre/ml-07w/skript/ml-2up-03-nearest-neighbor.pdf} {K-NN Derivation}
+	 \bibitem{5}
+	Yifei Feng and Zhengli Sun
+	Stanford University 
+	Yelp User Rating
+	 \href{http://cs229.stanford.edu/proj2014/Yifei%20Feng,%20Zhengli%20Sun,%20Yelp%20User%20Rating%20Prediction.pdf} {Link towards paper}
 \end{thebibliography}
 
 
