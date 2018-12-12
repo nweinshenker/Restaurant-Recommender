@@ -41,20 +41,23 @@ There are two approaches that can be used to make recommendations to users based
 \subsection*{K Nearest Neighbors}
 	
 K Nearest Neighbors (k-NN) is a memory based collaborative filter that relies upon comparing features of a user or item to other users or items to receive a recommendation. 
-k-NN is also a \textbf{non-parametric} learning algorithm. Since k-NN has little or no prior knowledge about the distribution data, k-NN  builds the model structure based on the training data. This allows the algorithm to be highly versatile and simple to perform with little to no information \cite{3}. 
+k-NN is also a \textbf{non-parametric} learning algorithm. What non-parametric means is that k-NN has little or no prior knowledge about the data distribution. k-NN  builds the model structure based on the training data and this allows the algorithm to be highly versatile and simple to implement with little to no information about the data \cite{3}. 
 
 \subsubsection*{History of Nearest Neighbors}
 
-In 1992, Paul Resnick and fellow researchers at the University of Minnesota first studied collaborative filtering systems under the GroupLens project\cite{2}. In collaboration with developers at a company named Tapesty, GroupLens help build upon a query engine that could compare ratings. All of this came to fruition out of the need to handle the large amounts of email and messages posted to newsgroups. With the growth of the Internet, collaborative filters systems have developed grown in usage by big name tech companies like Netflix, Amazon, and Yahoo as predictive features help capture larger potential customer base.
+In 1992, Paul Resnick and fellow researchers at the University of Minnesota first studied collaborative filtering systems under the GroupLens project\cite{2}.  Collaborative filtering began to arise as a solution for dealing with overload in online information spaces. The first collaborative filtering system was Tapestry
+a manual collaborative filtering system: it allowed the user to query for
+items in an information domain, such as corporate e-mail, based on
+other users’ opinions or actions\cite{6}. With the growth of the Internet, collaborative filters systems have grown in scope and popularity by big name tech companies like Netflix, Amazon, and Yahoo as predictive features for user-to-user 
 
 \subsubsection{Nearest Neighbor Classification Derivation}
 To understand k-NN, some necessary background information is required on probability. Here are some basic definitions of probability definitions. \cite{4}
 \begin{enumerate}
 	\item P(A | B), the conditional probability, is the probability of A given B
 \end{enumerate}
-Now lets assume that for  k-\textbf{nearest neighbor classification } we are using  euclidean distance; X:training data; Y: class labels of X; x:unknown sample.
-Our k-nearest classifier will be as follow:
-Let $d$ be a distance measure for our dataset $D$ where
+Now lets assume that for  k-\textbf{nearest neighbor classification }  X = training data; Y = class labels of X; x = unknown sample.
+Our k-nearest classifier will follow as:
+Let $d$ be a distance measure (using euclidean distance)for our dataset $D$ where
 \begin{equation}
 D = (x_{1}, y_{1}), (x_{2}, y_{2}), ... , (x_{n}, y_{n})
 \end{equation}
@@ -71,7 +74,30 @@ We will now define our classifier as
 \end{equation}
 and then we will predict the class of a user using the maximal predicted probability.
 \begin{equation}
-\text{ (i.e., the majority class with repect to the classes of the neighbors)}
+\hat{Y}(x) = argmin_{y \epsilon Y} \hat{p}(Y = y |x)
+\end{equation}
+\textsubscript{i.e., the majority class with repect to the classes of the neighbors}. \newline\newline
+
+\subsubsection*{Classification Decision Rule}
+Following determining the distance between test sample and training sample and the likelihood it's consider a neighbor, we can test it's classification.
+With 1-nearest neighbor rule, the predicted class of test sample x is set equal to the true class y of its nearest neighbor, where mi is a nearest neighbor to x if the distance.
+\begin{equation}
+d(m_{i},x) = min_{j}(d(m_{j},x))
+\end{equation}
+Once all the test samples have been classified, the classification accuracy is based on the ratio of the number of correctly classified samples to the total number of samples classified, given in the form.
+\begin{equation}
+Accurary = \sum \frac{correctly classified}{total N}
+\end{equation}
+		
+
+
+\subsubsection*{The Distance Function}
+
+Several methods can be used to evaluate the distances between the neighbors and the point of interest.
+We will first look at the use of the Euclidean distance or the straight-line distance between the points.
+
+\begin{equation}
+d(x_{i},x_{j}) = \sqrt{(x_{i1} - x_{j1})^2 + (x_{i2} - x_{j2})^2 + ... + (x_{ip} - x_{jp})^2}
 \end{equation}
 
 \subsubsection{K Nearest Neighbor Pseudocode }
@@ -89,24 +115,14 @@ and then we will predict the class of a user using the maximal predicted probabi
 \end{algorithm}
 
 
-\subsubsection*{The Distance Function}
-
-Several methods can be used to evaluate the distances between the neighbors and the point of interest.
-We will first look at the use of the Euclidean distance or the straight-line distance between the points.
-
-\begin{equation}
-d(x_{i},x_{j}) = \sqrt{(x_{i1} - x_{j1})^2 + (x_{i2} - x_{j2})^2 + ... + (x_{ip} - x_{jp})^2}
-\end{equation}
-
-
-\subsubsection*{Estimating the rating}
-At it's core, k-NN is a simple classification method where little or no prior knowledge about the distribution of the data is needed. K-nearest neighbor classification was first developed to perform discriminant analysis when estimates are unknown or difficult to determine. \textbf{include citation}
-	
-		
-Following determining the distance between test sample and training sample. 
-With 1 nearest neighbor rule, the predicted class of test sample is set equal to the true class of its nearest neighbor, where is a nearest neighbor to x if the distance 
-		
-$d(m_{i},x) = min_{j}(d(m_{j},x))$
+%\subsubsection*{Estimating the rating}
+%At it's core, k-NN is a simple classification method where little or no prior knowledge about the distribution of the data is needed. K-nearest neighbor classification was first developed to perform discriminant analysis when estimates are unknown or difficult to determine. \textbf{include citation}
+%	
+%		
+%Following determining the distance between test sample and training sample. 
+%With 1 nearest neighbor rule, the predicted class of test sample is set equal to the true class of its nearest neighbor, where is a nearest neighbor to x if the distance 
+%		
+%$d(m_{i},x) = min_{j}(d(m_{j},x))$
 
 		
 %\subsubsection**{SVD Decomposition}
@@ -139,6 +155,7 @@ $d(m_{i},x) = min_{j}(d(m_{j},x))$
 
 
 \section*{Warm-up}
+Here are a couple activites to warm up on k-NN 
 \begin{enumerate}
 	\item The below data are 2D points with their classification. If we were to add the point (1,1) using 3-NN (K = 3) what would be the classification of this point?
 	\begin{figure}[H]
@@ -159,7 +176,7 @@ $d(m_{i},x) = min_{j}(d(m_{j},x))$
      then when would you use Minkowski distance over Euclidean Distance?
 	
 
-\item Draw Voronoi diagram
+\item Draw a Voronoi diagram
 \end{enumerate}
 
 \section*{Main Activity}
@@ -178,6 +195,9 @@ The activity will done using the Matlab script KNN.m.
 \item Evaluate different classification metrics
 
 \end{enumerate}
+
+\section*{Future Work}
+When classifying users some 
 
 \begin {thebibliography}{999}
 \bibliographystyle{plain}
@@ -204,9 +224,17 @@ The activity will done using the Matlab script KNN.m.
 	Stanford University 
 	Yelp User Rating
 	 \href{http://cs229.stanford.edu/proj2014/Yifei%20Feng,%20Zhengli%20Sun,%20Yelp%20User%20Rating%20Prediction.pdf} {Link towards paper}
+	 \bibitem{6}
+	Collaborative Filtering Recommender Systems
+	By Michael D. Ekstrand, John T. Riedl
+	and Joseph A. Konstan
+	 \href{http://files.grouplens.org/papers/FnT%20CF%20Recsys%20Survey.pdf} {Group Lens}
+	 \bibitem{7}
+	 R. Nowak
+	 University of Wisconsin-Madison
+	 ECE 830 Fall 2010 Statistical Signal Processing
+	 \href{http://nowak.ece.wisc.edu/ece830/ece830_lecture24.pdf}{Signal Processing}
 \end{thebibliography}
-
-
 \end{document}
 
 
