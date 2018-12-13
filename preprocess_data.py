@@ -65,27 +65,22 @@ def get_reviews_for_businesses(b_to_get_reviews_for):
 
 def get_restaurants():
     num_restaurants = 0
-    restaurants = []
+    restaurants = {}
 
     with open('../data/yelp_academic_dataset_business.json') as fin:
         for line in fin:
             line_contents = json.loads(line)
             at = line_contents.get('categories', [])
 
-            # print("{}".format(at))
-
             if at is not None:
                 if "Restaurants" in at:
                     num_restaurants += 1
-                    restaurants.append(line_contents.get("business_id"))
+                    restaurants[line_contents.get("business_id")] = line_contents
+                    if num_restaurants % 1000 == 0:
+                        print("Number of restaurants: {}".format(num_restaurants))
 
-    print("Number of restaurants: {}".format(num_restaurants))
-
-    r = {"restaurants": restaurants}
     with open('restaurants.json', 'w') as fp:
         json.dump(restaurants, fp, sort_keys=True, indent=4)
-
-    return restaurants
 
 
 def process_restaurant_reviews(src, dest):
@@ -239,6 +234,8 @@ def get_user_subset(restaurant_src, user_src, user_dest):
             num_users += 1
             if num_users % 10 == 0:
                 print("Gather Num Users {}".format(num_users))
+            if num_users > 500:
+                break
 
     del user_data
 
@@ -263,7 +260,21 @@ def convert_user_json(src, dest):
     json.dump(dest_users, fp, sort_keys=True, indent=4)
 
 
+def get_business_info(b_id):
+    with open('../data/yelp_academic_dataset_business.json') as fin:
+        for line in fin:
+            line_contents = json.loads(line)
+            id = line_contents.get("business_id")
+
+            if b_id == id:
+                print(line_contents)
+                break
+
+
 def reduce_restaurants(src, dest, num):
+   import pdb
+   pdb.set_trace()
+
    new_restaurants = {}
    count = 0
 
@@ -273,13 +284,107 @@ def reduce_restaurants(src, dest, num):
    for b_id in data:
        new_restaurants[b_id] = data[b_id]
 
-       count += 1
-       if count > num:
-           break
+       break
 
    fp.close()
    fp = open(dest, 'w')
    json.dump(new_restaurants, fp, sort_keys=True, indent=4)
+
+
+def get_noras_user_set():
+    """
+    In this user set create a josn with users and what they rated noras
+
+    Take all the features that the user has and then create a dictionart.
+    """
+
+    ###########################################################################
+    # create set of all users that rated noras
+    print("Create set of all users that rated Noras")
+    users = set()
+    fp = open('restaurant_noras_reviews.json')
+    data = json.load(fp)
+    for r in data["pHJu8tj3sI8eC5aIHLFEfQ"]["reviews"]:
+        users.add(r["user_id"])
+
+
+    fp.close()
+    noras_user_profile = {}
+    for u in users:
+        noras_user_profile[u] = {}
+        noras_user_profile[u]["categories"] = []
+        noras_user_profile[u]["ratings"] = []
+
+    for r in data["pHJu8tj3sI8eC5aIHLFEfQ"]["reviews"]:
+        noras_user_profile[r["user_id"]]["noras_rating"] = r["stars"]
+
+
+    ###########################################################################
+    # Process reviews and create user profiles
+    fp = open('restaurants.json')
+    restaurants = json.load(fp)
+
+    print("process reviews")
+    num_reviews = 0
+    with open('../data/yelp_academic_dataset_review.json') as fin:
+        for line in fin:
+            line_contents = json.loads(line)
+            u_id = line_contents.get('user_id')
+            if u_id in users:
+                num_reviews += 1
+                if num_reviews % 100 == 0:
+                    print("Processing reviews {}".format(num_reviews))
+
+                if line_contents.get('business_id') in restaurants:
+                    noras_user_profile[u_id]["ratings"].append(line_contents.get("stars"))
+
+                    r_data = restaurants[line_contents.get('business_id')]
+                    for cat in r_data["categories"].split(','):
+                        cat = cat.strip()
+                        noras_user_profile[u_id]["categories"].append(cat)
+
+    fp.close()
+
+    ###########################################################################
+    # compute average restaurant review
+    print("computing average restaurant reviews")
+    num_reviews = 0
+    for u_id in noras_user_profile:
+        num_reviews += 1
+        if num_reviews % 10 == 0:
+            print("computing average {}".format(num_reviews))
+        noras_user_profile[u_id]["avg_restaurant_rating"] = sum(noras_user_profile[u_id]["ratings"]) / len(noras_user_profile[u_id]["ratings"])
+
+    ###########################################################################
+    # get user data from the user json file
+    print("getting other user data")
+    num_users = 0
+    with open('../data/yelp_academic_dataset_user.json') as fin:
+        for line in fin:
+            line_contents = json.loads(line)
+            u_id = line_contents.get('user_id')
+            if u_id in users:
+                num_users += 1
+                if num_users % 50 == 0:
+                    print("getting more user data {}".format(num_users))
+
+                noras_user_profile[u_id]["avg_rating"] = line_contents.get("average_stars")
+                noras_user_profile[u_id]["review_count"] = line_contents.get("review_count")
+                noras_user_profile[u_id]["useful"] = line_contents.get("useful")
+
+    ###########################################################################
+    # convert set to list
+    print("convert set to list")
+    for u_id in noras_user_profile:
+        noras_user_profile[u_id]["categories"] = list(noras_user_profile[u_id]["categories"])
+
+    ###########################################################################
+    # write to file
+    print("writing to file")
+    fp = open('noras_user_profile.json', 'w')
+    json.dump(noras_user_profile, fp, sort_keys=True, indent=4)
+    fp.close()
+
 
 if __name__ == '__main__':
     # import pdb
@@ -295,5 +400,10 @@ if __name__ == '__main__':
     # remove_slash("restaurants.json", "restaurants2.json")
     # get_restaurant_subset('restaurants.json', 'restaurants_more_than_1000_reviews.json', 1000)
     # convert_user_json('users.json', 'users_keyed.json')
-    reduce_restaurants('restaurants_more_than_1000_reviews.json', 'restaurants_1000_subset.json', 5)
-    get_user_subset('restaurants_1000_subset.json', 'users_keyed.json', 'users_1000_subset.json')
+
+    # get_business_info("pHJu8tj3sI8eC5aIHLFEfQ")
+    # get_restaurants()
+
+    # reduce_restaurants('restaurants_more_than_1000_reviews.json', 'restaurant.json', 1)
+    # get_user_subset('restaurants_1000_subset.json', 'users_keyed.json', 'user.json')
+    get_noras_user_set()

@@ -1,155 +1,150 @@
 close all;
 clear all;
+clc;
 
-%% Code to preprocess some data
-
-%% Load review data from JSON files
-fid = fopen('restaurants_1000_subset.json');
-raw = fread(fid,inf);
-str = char(raw);
-fclose(fid);
-restaurants = jsondecode(str);
-
-fid = fopen('users_1000_subset.json');
-raw = fread(fid, inf);
-str = char(raw);
-fclose(fid);
-users = jsondecode(str);
-
-clear str;
-clear raw;
-clear fid;
-
-
-%% Make data matrix
-r_ids = fieldnames(restaurants);
-u_ids = fieldnames(users);
-users_matrix = zeros(numel(u_ids), 2);
-
-for i=1:numel(u_ids)
-    avg_stars(i) = users.(u_ids{i}).average_stars;
-    review_count(i) = users.(u_ids{i}).review_count;
-    useful(i) = users.(u_ids{i}).useful;
-    fans(i) = users.(u_ids{i}).fans;
-end
-
-avg_stars = avg_stars';
-review_count = review_count';
-useful = useful';
-
-users_table = table(avg_stars, review_count, useful);
-users_table.Properties.RowNames = u_ids;
-
-save('user_matrix.mat', 'users_table', 'r_ids', 'restaurants');
-
-load('user_matrix.mat');
-
-%% Apply knn to a restaurant
-[users_list, ratings] = get_users_for_restaurant(1, r_ids, restaurants, users_table);
-[neighbors, test_users, neighbor_ratings, test_ratings] = split_users(users_list, ratings, 10);
+% Restaurant that we did a user-user comparison at
+% {
+%     'neighborhood': '', 
+%     'attributes': {
+%         'Smoking': 'no', 
+%         'NoiseLevel': 'average', 
+%         'HappyHour': 'False', 
+%         'GoodForDancing': 'False', 
+%         'RestaurantsDelivery': 'False', 
+%         'BikeParking': 'False', 
+%         'WheelchairAccessible': 'True', 
+%         'Caters': 'True', 
+%         'RestaurantsAttire': 'casual', 
+%         'Music': "{'dj': False, 'background_music': False, 'no_music': False, 'karaoke': False, 'live': False, 'video': False, 'jukebox': False}", 
+%         'GoodForMeal': "{'dessert': False, 'latenight': False, 'lunch': False, 'dinner': True, 'breakfast': False, 'brunch': False}", 
+%         'RestaurantsGoodForGroups': 'True', 
+%         'Alcohol': 'full_bar', 
+%         'BestNights': "{'monday': False, 'tuesday': False, 'friday': True, 'wednesday': False, 'thursday': False, 'sunday': True, 'saturday': True}", 
+%         'CoatCheck': 'False', 
+%         'BusinessParking': "{'garage': False, 'street': False, 'validated': False, 'lot': True, 'valet': False}", 
+%         'WiFi': 'free', 
+%         'GoodForKids': 'True', 
+%         'RestaurantsTableService': 'True', 
+%         'RestaurantsReservations': 'True', 
+%         'BusinessAcceptsCreditCards': 'True',
+%         'RestaurantsTakeOut': 'True',
+%         'Ambience': "{'romantic': False, 'intimate': False, 'classy': False, 'hipster': False, 'divey': False, 'touristy': False, 'trendy': False, 'upscale': False, 'casual': True}", 
+%         'OutdoorSeating': 'False', 
+%         'HasTV': 'True', 
+%         'RestaurantsPriceRange2': '2'
+%     }, 
+%     'review_count': 1412, 
+%     'business_id': 'pHJu8tj3sI8eC5aIHLFEfQ', 
+%     'name': "Nora's Italian Cuisine", 
+%     'postal_code': '89103', 
+%     'state': 'NV', 
+%     'hours': {'Wednesday': '11:0-22:0', 'Sunday': '16:0-22:0', 'Friday': '11:0-23:0', 'Tuesday': '11:0-22:0', 'Thursday': '11:0-22:0', 'Monday': '11:0-22:0', 'Saturday': '16:0-23:0'}, 
+%     'is_open': 1, 
+%     'city': 'Las Vegas', 
+%     'categories': 'Bars, Italian, Pizza, Event Planning & Services, Venues & Event Spaces, Nightlife, Cocktail Bars, Wine Bars, Restaurants', 
+%     'latitude': 36.1150515442, 
+%     'longitude': -115.220283569, 
+%     'address': '5780 W Flamingo Rd', 'stars': 4.0
+% };
 
 
-%% Probelm 1: Varying the K Value
-% k = 1;
+% %% Load review data from JSON files
+% fid = fopen('noras_user_profile.json');
+% raw = fread(fid,inf);
+% str = char(raw);
+% fclose(fid);
+% users = jsondecode(str);
 % 
-% for neighbor_i = 1:length(neighbor_ratings)
-%     [k_users, distances, k_ratings] = neareset_neighbors(neighbors, neighbor_ratings, neighbors(neighbor_i,:), k);
-%     rating = compute_rating_majority(k_ratings);
-%     rating_diff(neighbor_i) = rating - neighbor_ratings(neighbor_i);
+% %% Make data matrix
+% u_ids = fieldnames(users);
+% 
+% for i=1:numel(u_ids)
+%     avg_rating(i) = users.(u_ids{i}).avg_rating;
+%     avg_restaurant_rating(i) = users.(u_ids{i}).avg_restaurant_rating;
+%     review_count(i) = users.(u_ids{i}).review_count;
+%     useful(i) = users.(u_ids{i}).useful;
+%     cats_pizza(i) = sum(strcmp(users.(u_ids{i}).categories, "Pizza"));
+%     cats_bar(i) = sum(strcmp(users.(u_ids{i}).categories, "Bars"));
+%     cats_italian(i) = sum(strcmp(users.(u_ids{i}).categories, "Italian"));
+%     noras_rating(i) = users.(u_ids{i}).noras_rating;
 % end
 % 
-% figure();
-% plot(1:length(neighbors), rating_diff);
-% title('Rating Difference');
-% xlabel('User');
-% ylabel('Difference in actual vs predicted rating on neighbors');
+% avg_rating = avg_rating';
+% avg_restaurant_rating = avg_restaurant_rating';
+% review_count = review_count';
+% useful = useful';
+% cats_pizza =cats_pizza';
+% cats_bar = cats_bar';
+% cats_italian = cats_italian';
+% noras_rating = noras_rating';
 % 
-% k_errors(k) = nnz(rating_diff);
+% users = table(avg_rating, avg_restaurant_rating, review_count, useful, cats_pizza, cats_bar, cats_italian, noras_rating);
+% 
+% save('users.mat', 'users');
 
-%% Solution 1
-for k = 1:50
-    for neighbor_i = 1:length(neighbor_ratings)
-        [k_users, distances, k_ratings] = neareset_neighbors_euclid(neighbors, neighbor_ratings, neighbors(neighbor_i,:), k);
-        rating = compute_rating_majority(k_ratings);
-        rating_diff(neighbor_i) = rating - neighbor_ratings(neighbor_i);
-    end
-    k_errors(k) = nnz(rating_diff);
+load('users.mat');
+[neighbors, test_users] = split_users(users, 100);
 
+%% Problem
+% Features 
+% 1 - avg_rating for all businesses
+% 2 - avg_restaurant_rating
+% 3 - review_count
+% 4 - useful
+% 5 - cats_pizza: number of pizza restaurants a user has rated
+% 6 - cats_bar: number of bars a user has rated
+% 7 - cats_italian: number of italian restaurants a user has rated
+
+% select features and k for the problem here
+features = [1:7];
+k = 1;
+
+for neighbor_i = 1:height(neighbors)
+    [k_users, distances, k_ratings] = neareset_neighbors_euclid(neighbors(:, features), neighbors(neighbor_i, features), k, neighbors.noras_rating);
+    rating = compute_rating_majority(k_ratings);
+    rating_diff(neighbor_i) = rating -  neighbors(neighbor_i, :).noras_rating;
 end
 
 figure();
-plot(1:50, k_errors);
-xlabel('k');
-ylabel('Number of Misratings');
-title('Problem 1: Number Errors');
+plot(1:height(neighbors), rating_diff);
+title('Rating Difference');
+xlabel('User');
+ylabel('Difference in actual vs predicted rating on neighbors');
 
-%% Problem 2: Using different distance functions
-for k = 1:50
-    for neighbor_i = 1:length(neighbor_ratings)
-        [k_users, distances, k_ratings] = neareset_neighbors_manhat(neighbors, neighbor_ratings, neighbors(neighbor_i,:), k);
+k_errors(k) = nnz(rating_diff);
+
+%% Iteration over K for the Problem
+k_end = 200; % make smaller to run faster
+
+for k = 1:k_end
+    for neighbor_i = 1:height(neighbors)
+        [k_users, distances, k_ratings] = neareset_neighbors_euclid(neighbors(:, features), neighbors(neighbor_i, features), k,  neighbors.noras_rating);
         rating = compute_rating_majority(k_ratings);
-        rating_diff(neighbor_i) = rating - neighbor_ratings(neighbor_i);
+        rating_diff(neighbor_i) = rating - neighbors(neighbor_i, :).noras_rating;
     end
-    
     k_errors(k) = nnz(rating_diff);
 end
 
 figure();
-plot(1:50, k_errors);
+plot(1:k_end, k_errors);
 xlabel('k');
 ylabel('Number of Misratings');
-title('Problem 2: Number Errors');
+title('Iteration over K');
+
 
 %% 3D plot
-figure();
-scatter(neighbors.useful, neighbors.review_count, 15, neighbor_ratings);
-title('Users that have rated the restaurant');
-%% Plot how we want
-% figure()
-% scatter(neighbors(:,1), neighbors(:,2));
-% line(test_user(:,1),test_user(:,2),'marker','x','color','k',...
-%    'markersize',10,'linewidth',2)
-% r = max(distance);
-% c = test_user;
-% pos = [c-r 2*r 2*r];
-% rectangle('Position',pos,'Curvature',[1 1])
+% figure();
+% scatter(neighbors.useful, neighbors.review_count, 15, neighbor_ratings);
+% title('Users that have rated the restaurant');
 
 
 %% Data Helper Functions
-function [ret_users, ret_user_review] =  get_users_for_restaurant(restaurant_i, r_ids, restaurants, users_table)
-    r_id = r_ids(restaurant_i);
-    r = restaurants.(r_id{1});
-    
-    u_ids = users_table.Properties.RowNames;
-    
-    for review_i = 1:length(r.reviews)
-        u_id = r.reviews(review_i).user_id;
-        u_id = strrep(string(u_id), '-', '_');
-        u_i = find(contains(u_ids,'x' + u_id));
-        if isempty(u_i)
-            u_i = find(contains(u_ids, u_id));
-        end
-        
-        user_indices(review_i) = u_i;
-        users(review_i, :) = users_table(u_i, :);
-        user_review(review_i) = r.reviews(review_i).stars;
-    end 
-    
-    % reduce number of users
-    ret_users = users(1:500, :);
-    ret_user_review = user_review(1:500);
-end
-
-
-function [neighbors, test_users, neighbor_reviews, test_reviews] = split_users(users, reviews, num_test)
-    test_indices = randperm(length(reviews), num_test);
-    neighbor_indices = setdiff(1:length(reviews), test_indices);
+function [neighbors, test_users] = split_users(users, num_test)
+    test_indices = randperm(height(users), num_test);
+    neighbor_indices = setdiff(1:height(users), test_indices);
     
     test_users = users(test_indices, :);
     neighbors = users(neighbor_indices, :);
-
-    test_reviews = reviews(test_indices)';
-    neighbor_reviews = reviews(neighbor_indices)';
 end
 
 
@@ -161,21 +156,20 @@ end
 
 
 %% KNN helper functions
-function [closest_users, distance, ratings] = neareset_neighbors_euclid(neighbor_list, neighbor_ratings, user, k)
+function [closest_users, distance, k_ratings] = neareset_neighbors_euclid(neighbor_list, user, k, ratings)
     distance = euclid_dist(neighbor_list, user);
     [distance, Ind] = sort(distance); 
     ind_closest = Ind(1:k);
-    ratings = neighbor_ratings(ind_closest);
     closest_users = neighbor_list(ind_closest(:), :);
+    k_ratings = ratings(ind_closest);
     distance = distance(1:k);
 end
 
 
-function [closest_users, distance, ratings] = neareset_neighbors_manhat(neighbor_list, neighbor_ratings, user, k)
+function [closest_users, distance] = neareset_neighbors_manhat(neighbor_list, user, k)
     distance = manhattan_dist(neighbor_list, user);
     [distance, Ind] = sort(distance); 
     ind_closest = Ind(1:k);
-    ratings = neighbor_ratings(ind_closest);
     closest_users = neighbor_list(ind_closest(:), :);
     distance = distance(1:k);
 end
