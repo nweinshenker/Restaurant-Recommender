@@ -48,9 +48,8 @@ clc;
 % };
 
 load('users.mat');
-[neighbors, test_users] = split_users(users, 100);
 
-%% Problem
+%% Problem - Configuration
 % Features 
 % 1 - avg_rating for all businesses
 % 2 - avg_restaurant_rating
@@ -62,35 +61,39 @@ load('users.mat');
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % select different values here
-features = [2,3];
-k = 1; % for evaluating 1 k value at a time
-knn_func = @neareset_neighbors_manhat; % neareset_neighbors_euclid, nearest_neighbors_manhat
-rating_func = @compute_rating_average; % compute_rating_average, compute_rating_majority
+features = [1:7]; % select any combination of numbers 1 through 7
+k = 3; % for evaluating 1 k value at a time
+knn_func = @neareset_neighbors_euclid; % neareset_neighbors_euclid, nearest_neighbors_manhat
+rating_func = @compute_rating_majority; % compute_rating_average, compute_rating_majority
+num_test_users = 25; % up to 399
+k_end = 10; % for iteration, make small to run faster
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+[neighbors, test_users] = split_users(users, num_test_users);
+%% Problem - 1 K Value
 
 for neighbor_i = 1:height(neighbors)
     [k_users, distances, k_ratings] = knn_func(neighbors(:, features), neighbors(neighbor_i, features), k, neighbors.noras_rating);
     rating = rating_func(k_ratings);
-    rating_diff(neighbor_i) = rating -  neighbors(neighbor_i, :).noras_rating;
+    rating_diff(neighbor_i) = rating - neighbors(neighbor_i, :).noras_rating;
 end
 
+% plot
 figure();
 plot(1:height(neighbors), rating_diff);
-title('Rating Difference');
-xlabel('User');
-ylabel('Difference in actual vs predicted rating on neighbors');
+title(sprintf('Predicted - actual for K = %d', k));
+xlabel('User ID');
+ylabel('Difference');
 
 k_errors(k) = nnz(rating_diff);
 
 %% Iteration over K for the Problem
-k_end = 20; % make smaller to run faster
-
 for k = 1:k_end
     for neighbor_i = 1:height(neighbors)
         [k_users, distances, k_ratings] = knn_func(neighbors(:, features), neighbors(neighbor_i, features), k,  neighbors.noras_rating);
         rating = rating_func(k_ratings);
         rating_diff(neighbor_i) = rating - neighbors(neighbor_i, :).noras_rating;
     end
+    
     k_errors(k) = nnz(rating_diff);
     k_errors_rmse(k) = sqrt(sum(rating_diff.^2)/length(rating_diff));
 end
@@ -99,15 +102,16 @@ figure();
 plot(1:k_end, k_errors);
 xlabel('k');
 ylabel('Number of Misratings');
-title('Iteration over K');
+title('Neighbors');
 
 figure();
 plot(1:k_end, k_errors_rmse);
 xlabel('k');
 ylabel('Root Mean Squared Error');
-title('Iteration over K');
+title('Neighbors');
 
 %% Iteration over Validation Data
+rating_diff = [];
 for k = 1:k_end
     for neighbor_i = 1:height(test_users)
         [k_users, distances, k_ratings] = knn_func(test_users(:, features), test_users(neighbor_i, features), k,  test_users.noras_rating);
@@ -122,13 +126,41 @@ figure();
 plot(1:k_end, k_errors);
 xlabel('k');
 ylabel('Number of Misratings');
-title('Validation Iteration over K');
+title('Validation Users');
 
 figure();
 plot(1:k_end, k_errors_rmse);
 xlabel('k');
 ylabel('Root Mean Squared Error');
-title('Validation Iteration over K');
+title('Validation Users');
+
+%% Problem Choosing Features
+k = 3;
+rating_diff = [];
+k_errors = [];
+k_errors_rmse = [];
+for features = 1:7
+    for neighbor_i = 1:height(neighbors)
+        [k_users, distances, k_ratings] = knn_func(neighbors(:, features), neighbors(neighbor_i, features), k, neighbors.noras_rating);
+        rating = rating_func(k_ratings);
+        rating_diff(neighbor_i) = rating -  neighbors(neighbor_i, :).noras_rating;
+    end
+    
+    k_errors(features) = nnz(rating_diff);
+    k_errors_rmse(features) = sqrt(sum(rating_diff.^2)/length(rating_diff));    
+end
+
+figure();
+plot(1:7, k_errors);
+xlabel('k');
+ylabel('Number of Misratings');
+title('Feature Selection');
+
+figure();
+plot(1:7, k_errors_rmse);
+xlabel('k');
+ylabel('Root Mean Squared Error');
+title('Feature Selection');
 
 %% Data Helper Functions
 function [neighbors, test_users] = split_users(users, num_test)
@@ -149,6 +181,8 @@ end
 
 %% KNN helper functions
 function [closest_users, distance, k_ratings] = neareset_neighbors_euclid(neighbor_list, user, k, ratings)
+    k = min(k, height(neighbor_list));
+
     distance = euclid_dist(neighbor_list, user);
     [distance, Ind] = sort(distance); 
     ind_closest = Ind(1:k);

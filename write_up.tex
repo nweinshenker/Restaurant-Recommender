@@ -1,8 +1,5 @@
 % TODO go back and rewrite the abstract
-% TODO write equations for distance metric
-% TODO write equations for majority metric
-% TODO main activity question about kNN overfitting
-% TODO add Voroni diagram in warmup
+
 
 \documentclass{report}
 \usepackage[utf8]{inputenc}
@@ -17,7 +14,7 @@
 \graphicspath{{../pdf/}{D:}}
 
 
-\title{Restaurant Recommendations using Collaborative Filtering}
+\title{Collaborative Filtering using K Nearest Neighbors}
 \date{December\\ 2018}
 \author{Michael Siem \\ \href{mailto:siem@wisc.edu}{siem@wisc.edu}
 	\and Nathan Weinshenker \\ \href{mailto:nweinshenker@wisc.edu}{nweinshenker@wisc.edu}
@@ -27,11 +24,7 @@
 
 \maketitle
 
-\section*{Abstract}
-With the growth of ecommerce and internet, predictions of user preferences is a hot topic in todays Machine Learning community. Our goal is to use Yelp's open data set \href {https://www.yelp.com/dataset/challenge} {Yelp Dataset Challenge} as prediction measurement of potential restaurants reviewers. We will go into depth on the implementation of k Nearest Neighbors for building a recommendation system for users of similar preferences.  
-
-\section*{Background Information}
-
+\chapter*{Abstract}
 Recommendation systems are a vital tool for providing users with personalized suggestions for items such as movies, music, and restaurants.
 Product review data is widely accessible on services such as Spotify, Amazon, and Yelp.
 There are two approaches that can be used to make recommendations to users based on this data, memory based, and model based.
@@ -43,20 +36,23 @@ The advantage of a memory based system is it doesn't learn a model or make any a
 Memory based systems can do a user-user comparison or and item-item comparison.
 In the user-user comparison, a user is compared to other users that have rated an item and in the item-item comparison, an item is compared to other items a user has rated to predict the rating the user will give it.
 We will further study a memory based recommendation systems, K Nearest Neighbors.
-\cite{5}.
+
+\chapter*{Background Information}
 	
-\subsection*{K Nearest Neighbors}
+\section*{K Nearest Neighbors}
 	
 K Nearest Neighbors (k-NN) is a memory based collaborative filter that relies upon comparing features of a user or item to other users or items to receive a recommendation. 
-k-NN is also a \textbf{non-parametric} learning algorithm. What non-parametric means is that k-NN has little or no prior knowledge about the data distribution. k-NN  builds the model structure based on the training data and this allows the algorithm to be highly versatile and simple to implement with little to no information about the data \cite{3}. 
+k-NN is a simple and powerful tool that doesn't require advanced tuning methods. 
+It is a "lazy" solution in the sense that it doesn't need to do any training.
+Because k-NN relies on a large set of data, it is slow to run: O(md) where m = \# examples and d = \# dimensions.
 
-\subsubsection*{History of Nearest Neighbors}
+\subsection*{History of Nearest Neighbors}
 
 In 1992, Paul Resnick and fellow researchers at the University of Minnesota first studied collaborative filtering systems through the GroupLens project\cite{2}\cite{8}.  Collaborative filtering began to arise as a solution for dealing with overload in online information spaces. The first collaborative filtering system was Tapestry: it allowed the user to query for
 items in an information domain, such as corporate e-mail, based on
 other users’ opinions or actions\cite{6}. With the growth of the Internet, collaborative filters systems have grown in scope and popularity with big name tech companies like Netflix, Amazon, and Yahoo. Today, collaborative filtering systems are used by many companies to shift through the mountains of readily available data.
 
-\subsubsection{K Nearest Neighbor Pseudocode }
+\subsection*{K Nearest Neighbor Pseudocode }
 \begin{algorithm}
   \caption{K Nearest Neighbour}
   \begin{algorithmic}
@@ -71,9 +67,59 @@ other users’ opinions or actions\cite{6}. With the growth of the Internet, col
 \end{algorithm}
 \textsubscript{Our pseudocode will serve as the map for our derivation.}
 
+\subsection*{K}
 
-\subsubsection{Nearest Neighbor Classification Derivation}
+The value of K determines how many points (determined by the distance function) to use to predict a value for a point of interest.
+The value of K can be determined by considering a range of K values using the data in memory.
+If K is too small, it will model the noise in the data set, and if K is too large, the neighbors will include points from other classes.
+K is generally chosen to be odd so that a majority will exist in the neighbors.
+
+\subsection*{The Distance Function}
+
+Several methods can be used to evaluate the distances between the neighbors and the point of interest.
+Distance relates to all the attributes and assumes all of them have the same effects on a distance.
+If there are attributes included in the k-NN that are irrelevant, it can cause errors in the classification.
+This is known as the curse of dimensionality. 
+
+\paragraph*{Euclidean Distance}
+
+\begin{equation}
+d(x_{i},x_{j}) = \sqrt{(x_{i1} - x_{j1})^2 + (x_{i2} - x_{j2})^2 + ... + (x_{ip} - x_{jp})^2}
+\end{equation}
+
+\paragraph*{Manhattan Distance}
+
+\begin{equation}
+d(x_{i},x_{j}) = |(x_{i1} - x_{j1})| + |(x_{i2} - x_{j2})| + ... + |(x_{ip} - x_{jp})|
+\end{equation}
+
+\subsection*{Classification Decision Rule}
+
+Once we have the k closest points to the point of interest, we must decide how to apply the labels of the k neighbors to the sample.
+The most basic classifier is the majority classifier.
+
+\paragraph{Majority Classifier}
+
+\begin{equation}
+R_i = mode(labels of K nearest neighbors),  
+\end{equation}
+$R_i$ = rating for sample i
+
+\paragraph{Average Classifier}
+
+The average classifier takes an average of the k nearest neighbors.
+
+\begin{equation}
+R_i = \sum_{k=1}^k L_i / K
+\end{equation}
+$L_i$ = label of sample i
+\\
+The majority classifier applies the most frequent label of the k neighbors to the point of interest. 
+
+\subsection*{Nearest Neighbor Classification Derivation}
+
 \paragraph*{Terminology and Notation }\cite{4}
+
 \begin{enumerate}
 	\item P(A $|$ B), the conditional probability, is the probability of A given B
 	\item $h : X \in 0, 1$  \qquad  \qquad \textrm{binary classification rule; 
@@ -106,32 +152,23 @@ With $N$ as a ordered list of k closest points, we can determine the label of ou
 \end{equation}
 Here we compute the percentage of points classified as either 1 or 0 in the neighborhood and take the most frequent class label as the new class label for $x$.
  \newline\newline
-
-\subsubsection*{Classification Decision Rule}
-Defining the decision boundaries of our k neighborhoods depends on k.
-\\
-With k = 1 for k-NN, the predicted class of test sample x is set equal to the true class y of its nearest neighbor, where $m_{i}$ is a nearest neighbor to x if the distance \cite{7}
-\begin{equation}
-d(m_{i},x) = min_{j}(d(m_{j},x))
-\end{equation} 
-Once all the test samples have been classified, the classification accuracy is based on the ratio of the number of correctly classified samples to the total number of samples classified, given in the form.
-\begin{equation}
-Accurary = \sum \frac{correctly classified}{total N}
-\end{equation}
 		
+\subsubsection*{Error Analysis}
 
-
-\subsubsection*{The Distance Function}
-
-Several methods can be used to evaluate the distances between the neighbors and the point of interest.
-We will first look at the use of the Euclidean distance or the straight-line distance between the points.
+The accuracy of the recommendation system will be analyzed in 2 ways.
+First we will look at the percent of miss-classified ratings.
 
 \begin{equation}
-d(x_{i},x_{j}) = \sqrt{(x_{i1} - x_{j1})^2 + (x_{i2} - x_{j2})^2 + ... + (x_{ip} - x_{jp})^2}
+	Accurary =  \frac{\sum miss classified users}{total N} * 100
 \end{equation}
-The other distance metric we will look into will be Manhattan distance
+
+Second we will look at the Root Mean Squared Error of the predictions versus the actual rating. 
+Root Mean Squared Error (RMSE) is a popular metric in recommendation systems.
+It is useful to know the RMSE because in a recommendation system with ratings on a scale of 1 to 5 or 1 to 10, there is a higher probability for something to be miss-classified than in a binary classification. 
+The RMSE takes into account how far off a prediction is.
+
 \begin{equation}
-d(x_{i},x_{j}) = |(x_{i1} - x_{j1})| + |(x_{i2} - x_{j2})| + ... + |(x_{ip} - x_{jp})|
+RMSE = sqrt(\frac{\sum_{k=1}^n(R_{pred} - R_{actual})^2}{N})
 \end{equation}
 
 \section*{Warm-up}
@@ -219,55 +256,98 @@ d(x_{i},x_{j}) = |(x_{i1} - x_{j1})| + |(x_{i2} - x_{j2})| + ... + |(x_{ip} - x_
 
 \end{enumerate}
 
-\section*{Main Activity}
+\chapter*{Main Activity}
 
 The main activity will be evaluating a k-NN as a restaurant recommendation system using the Yelp dataset from \href{https://www.yelp.com/dataset}{https://www.yelp.com/dataset} using KNN.m and users.mat.
 The dataset originally contains 5,996,996 reviews for 188,593 businesses in 10 metropolitan areas.
 We preprocessed the data set to narrow it down to 1 restaurant and 500 reviews for the restaurant for the activity. The activity will be doing a user-user comparison to the users that have rated the restaurant.
 The following features are available for use in the problem. 
 The first 3 were taken directly from the user's profile, and the last 4 were derived from the users other reviews.
+
 \begin{enumerate}
-\item avg_rating: The average rating the user has given to all businesses they have rated.
-\item review_count: The total number of reviews a user has given.
+\item avg\textunderscore rating: The average rating the user has given to all businesses they have rated.
+\item review\textunderscore count: The total number of reviews a user has given.
 \item useful: Number of "useful" votes the user has given.
-\item avg_restaurant_rating: The average rating the user has given to businesses classified as restaurants.
-\item cats_pizza: The number of businesses classified as a pizza restaurant the user has been to.
-\item cats_bar: The number of businesses classified as a bar the user as been to.
-\item cats_italian: The number of businesses classified as an Italian restaurant the user as been to.
+\item avg\textunderscore restaurant\textunderscore rating: The average rating the user has given to businesses classified as restaurants.
+\item cats\textunderscore pizza: The number of businesses classified as a pizza restaurant the user has been to.
+\item cats\textunderscore bar: The number of businesses classified as a bar the user as been to.
+\item cats\textunderscore italian: The number of businesses classified as an Italian restaurant the user as been to.
 \end{enumerate}
-The restaurant being evaluated is 
 
+The restaurant being evaluated is Nora's Italian Cuisine. More details about the restaurant can be found in the comment near the top of KNN.m.
 
-\begin{enumerate}
-  \item Navigate to the code section indicated by Problem 1. Uncomment the code section and run the program, it should plot a list of data points and a circle.What do you observe about k - Nearest Neighbors?
-  \begin{enumerate}
-    \item Change the k value to be k = 1 and k = some large value. How does changing the value of k effect the decision of boundary?
-    \item  Depending on if k is small or large, would you expect the model to overfit or underfit the data?
-  \end{enumerate}
-  \item When deriving K-NN, the distance metric we used was Euclidean distance for determining the distances between the neighbors and the point of interest.
-  \begin{enumerate}
-    \item If we change the distance function to be the Manhattan distance, how would you expect the decision boundary to change?
-    \item What are some reasons you think different distance metrics are used for determining K-NN's decision boundaries?
-     \item How you think that chosen distance function can affect the classification accuracy?\cite{9}
-  \end{enumerate}
-  \begin{enumerate}
-  	\item In Part 1, our data set only had 2 features. 
-  \end{enumerate}
-  
-  
-\end{enumerate}
+\section*{Problems}
 
 \begin{enumerate}
 
+\item Choosing K
+  	
+  	\begin{enumerate}
+    
+  	\item {
+  	Run the file KNN.m to load all the variables. 
+  	User ctrl+enter to run sections of the code to speed it up. 
+  	Starting with all 7 features selected and k = 1.
+  	What is the number of misclassified values and why is this (mind the few that show a difference of 1)?
+  	}
+  	
+    \item {
+   	Repeat the above for different values of k, how do the number of miss-classifications and RMSE vary with k? 
+   	(You can change the k\textunderscore end variable to easily iterate over several values of k, but it will take a little time to run)
+    }
+    
+	\end{enumerate}
+	
+\item {
+Evaluating different features.
+We will next evaluate the use of the different features available to reduce the number of features so that we are not suffering from the curse of dimensionality with all 7 of the features available.
+}
 
-\item Choosing K value
+	\begin{enumerate}
+	
+	\item {	
+	Select one feature from the features list to be used.
+	To select the features, place the numbers for the corresponding features in the list features.
+	Why is the error no longer zero for k = 1?
+	}
+	
+	\item {
+	Go to section Problem Choosing Features in the KNN.m file.
+	Run this section of code with various K values.
+	Which features seem to be best for classifying the data?
+	}
+	
+	\end{enumerate}
+	
+\item {
+Evaluating different distance functions.
+Return to the Problem - Configuration and select a different distance function. 
+Make sure to run this section after changing a variable to update it in the workspace.
+}
 
-\item Evaluate different distance functions
+	\begin{enumerate}
+	
+	\item {
+	Set k equal to 3.
+	Run the section Problem Choosing Features changing the distance metric each time in the Problem - Configuration section.
+	Do the features all perform the same for the same distance metric?
+	}
+	
+	\end{enumerate}
 
-\item Evaluate different classification metrics
 
+\item {
+Evaluating different classification functions.
+}
+    \begin{enumerate}
+	
+	\item {
+	Compare the majority classifier and the average classifier. How do they compare in number of missclassfied data and RMSE? 
+	Use the sections Problem Choosing Features and Iteration over K for the Problem to evaluate.
+	}    
+    \end{enumerate}
+    
 \end{enumerate}
-
 
 \begin {thebibliography}{999}
 \bibliographystyle{plain}
@@ -316,34 +396,118 @@ Filtering of Netnews
 	\href{https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4978658/}{Distance Function}
 \end{thebibliography}
 
-\section*{Solutions}
-\subsection*{Warm up Activity}
-\subsection*{Main Activity}
+\chapter*{Solutions}
+
+\section*{Warm-up}
+
 \begin{enumerate}
-  \item SOLUTION: Answers may vary
-  \begin{enumerate}
-    \item SOLUTION: Increasing k makes the circle grow since it requires more points to be included in the neighborhood
-    \\
-    Decreasing k shrinks the circle
-    \item SOLUTION:  When K increase , the model becomes simpler because the neighborhoods become larger with more data points. This will make the model under-fit the data.
-\\
-When K decrease, we encounter the 1-Nearest Neighbor problem so are model should overfit the data because the nearest neighbor should be our sample point.
-  \end{enumerate}
-  \item When deriving K-NN, the distance metric we used was Euclidean distance for determining the distances between the neighbors and the point of interest.
-  \begin{enumerate}
-    \item SOLUTION: Euclidean Distance is represented by the $l_{2}$ norm. Changing the distance metric to Manhattan distance should create a more rigid boundary represented by the $l_{2}$ norm.
-    \item What are some reasons you think different distance metrics are used for determining K-NN's decision boundaries?
-    \item Describe the difference in error rate from Euclidean to Manhattan distance. Does this make sense why 
-  \end{enumerate}
-  \begin{enumerate}
-  	\item SOLUTION: Depending on the dataset, different distance functions can have a better classification accuracy. Depending on the dimensions of a the training data, some points may be farther depending on the distance function.
-  \end{enumerate}
+  \item   
+  	
+  	\begin{enumerate}
+  	  \item
+  	    \begin{center}
+          \begin{tabular}{| l | l | l |}
+            \hline
+            k & Class \\ \hline
+            1 & Red\\
+            3 & Red\\
+            5 & Blue\\
+			11 & Blue\\            
+            \hline
+          \end{tabular}
+        \end{center} 
+        
+        \item If the green dot is indeed a blue square, increasing k helps to filter out the noise.
+  	  \end{enumerate} 
   
+  \item 
+  	\begin{enumerate}
+  	  \item
+        \begin{center}
+          \begin{tabular}{| l | l | l |}
+            \hline
+            Feature 1 & Feature 2 & Manhattan Distance \\ \hline
+            -1 & 1 & 2 \\
+            0 & 1 & 1 \\
+            0 & 2 & 2 \\
+            1 & -1 & 2 \\
+            1 & 0 & 1 \\
+            1 & 2 & 1 \\
+            2 & 2 & 2 \\
+            2 & 3 & 3 \\
+            \hline
+        \end{tabular}
+      \end{center}
+    
+    \item 
+      \begin{center}
+        \begin{tabular}{| l | l | l |}
+          \hline
+          k & Class \\ \hline
+          1 & + \\
+          3 & + \\
+          7 & - \\
+          \hline
+        \end{tabular}
+      \end{center}       	  
+  	\end{enumerate}
+
+  \item C
+\end{enumerate}
+
+\section*{Problems}
+
+\begin{enumerate}
+
+\item Choosing K
+  	
+  	\begin{enumerate}
+    
+  	\item {
+  	Comparing a user to itself with all the features will and K=1 will result in the users own features applied to itself.
+  	}
+  	
+    \item {
+   	The number of miss-classifications and RMSE generally increase with k.
+    }
+    
+	\end{enumerate}
+	
+\item
+
+	\begin{enumerate}
+	
+	\item {	
+	Since all the features are not being used now, even though k = 1, the user does not have an exact match.
+	Overfitting is avoided here because of the reduction in dimensionality.
+	}
+	
+	\item { 1 and 2 seem to work well, answer is open ended}
+	
+	\end{enumerate}
+	
+\item 
+
+	\begin{enumerate}
+	
+	\item {
+	Feature 5 has different error for each of the distance metrics.
+	}
+	
+	\end{enumerate}
+
+
+\item {
+Evaluating different classification functions.
+}
+    \begin{enumerate}
+	
+	\item {
+	The missclassified users with the average rating classifier increases greatly because it applies a non-integer rating to the user.
+	The RMSE for the average rating decreases.
+	}    
+    \end{enumerate}
   
 \end{enumerate}
 
-
-
 \end{document}
-
-
