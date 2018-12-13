@@ -35,7 +35,7 @@ Memory based systems rely upon maintaining data and finding users or items that 
 The advantage of a memory based system is it doesn't learn a model or make any assumptions about the data so if trends change the recommendation system will adapt.
 Memory based systems can do a user-user comparison or and item-item comparison.
 In the user-user comparison, a user is compared to other users that have rated an item and in the item-item comparison, an item is compared to other items a user has rated to predict the rating the user will give it.
-We will further study a memory based recommendation systems, K Nearest Neighbors.
+We will further study a memory based recommendation systems, K Nearest Neighbors. After this activity, you should have a firm understanding of how K Nearest Neighbors is affected by 1) choosing different K values; 2)evaluating different different features; 3) evaluating different distance functions; and 4) changing the classification decision rule.
 
 \chapter*{Background Information}
 	
@@ -43,14 +43,14 @@ We will further study a memory based recommendation systems, K Nearest Neighbors
 	
 K Nearest Neighbors (k-NN) is a memory based collaborative filter that relies upon comparing features of a user or item to other users or items to receive a recommendation. 
 k-NN is a simple and powerful tool that doesn't require advanced tuning methods. 
-It is a "lazy" solution in the sense that it doesn't need to do any training.
+It is a "lazy" solution in the sense that it doesn't need to do any training\cite{1}.
 Because k-NN relies on a large set of data, it is slow to run: O(md) where m = \# examples and d = \# dimensions.
 
 \subsection*{History of Nearest Neighbors}
 
-In 1992, Paul Resnick and fellow researchers at the University of Minnesota first studied collaborative filtering systems through the GroupLens project\cite{2}\cite{8}.  Collaborative filtering began to arise as a solution for dealing with overload in online information spaces. The first collaborative filtering system was Tapestry: it allowed the user to query for
+In 1992, Paul Resnick and fellow researchers at the University of Minnesota first studied collaborative filtering systems through the GroupLens project\cite{2}.  Collaborative filtering began to arise as a solution for dealing with overload in online information spaces. The first collaborative filtering system was Tapestry: it allowed the user to query for
 items in an information domain, such as corporate e-mail, based on
-other users’ opinions or actions\cite{6}. With the growth of the Internet, collaborative filters systems have grown in scope and popularity with big name tech companies like Netflix, Amazon, and Yahoo. Today, collaborative filtering systems are used by many companies to shift through the mountains of readily available data.
+other users’ opinions or actions\cite{3}. With the growth of the Internet, collaborative filters systems have grown in scope and popularity with big name tech companies like Netflix, Amazon, and Yahoo. Today, collaborative filtering systems are used by many companies to shift through the mountains of readily available data and develop robust recommendation systems.
 
 \subsection*{K Nearest Neighbor Pseudocode }
 \begin{algorithm}
@@ -150,7 +150,7 @@ With $N$ as a ordered list of k closest points, we can determine the label of ou
 \begin{equation}
 \hat{Y}(x) = argmax_{\hat{p}}(Y = y |x)
 \end{equation}
-Here we compute the percentage of points classified as either 1 or 0 in the neighborhood and take the most frequent class label as the new class label for $x$.
+Here we compute the percentage of points classified as either 1 or 0 in the neighborhood and take the most frequent class label as the new class label for $x$. \cite{5}
  \newline\newline
 		
 \subsubsection*{Error Analysis}
@@ -352,48 +352,34 @@ Evaluating different classification functions.
 \begin {thebibliography}{999}
 \bibliographystyle{plain}
 	\bibitem{1}
-	Leif E. Peterson
-	Scholarpeida
-	\href{http://www.scholarpedia.org/article/K-nearest_neighbor}{Scholarpedia}
+	Benjamin Soltoff
+  ``Statistical learning: non-parametric methods MACS-3100``
+  2017 Website.
+  University of Chicago 
+	\href{https://cfss.uchicago.edu/persp010_nonparametric.html#objectives}{University Chicago MACS-3100}
 	\bibitem{2}
 	Joseph A. Konstan
-    University of Minnesota
-    Introduction to Recommender Systems
+  ``Introduction to Recommender Systems`` 2008 Slide Deck.
+  University of Minnesota
 	\href{https://www-users.cs.umn.edu/~konstan/SIGMOD-2008-Tut.pdf}{UMN SIGMOD-2008}
 	\bibitem{3}
-	Benjamin Soltoff
-    University of Chicago
-    Statistical learning: non-parametric methods MACS-3100
-	\href{https://cfss.uchicago.edu/persp010_nonparametric.html#objectives}{University Chicago MACS-3100}
+	Michael D. Ekstrand, John T. Riedl, and Joesph A. Konstran
+	``Collaborative Filtering Recommender Systems``
+		2009 Book.
+	University of Minnesota
+	 \href{http://files.grouplens.org/papers/FnT%20CF%20Recsys%20Survey.pdf} {Group Lens}
 	\bibitem{4}
 	Lars Schmidt-Thieme
+	``Machine Learning: Nearest Neighbor and Kernel Methods``
+	2007 Slide Deck.
 	Institute for Computer Science University of Hildesheim
 	 \href{https://www.ismll.uni-hildesheim.de/lehre/ml-07w/skript/ml-2up-03-nearest-neighbor.pdf} {K-NN Derivation}
 	 \bibitem{5}
-	Yifei Feng and Zhengli Sun
-	Stanford University 
-	Yelp User Rating
-	 \href{http://cs229.stanford.edu/proj2014/Yifei%20Feng,%20Zhengli%20Sun,%20Yelp%20User%20Rating%20Prediction.pdf} {Link towards paper}
-	 \bibitem{6}
-	Collaborative Filtering Recommender Systems
-	By Michael D. Ekstrand, John T. Riedl
-	and Joseph A. Konstan
-	 \href{http://files.grouplens.org/papers/FnT%20CF%20Recsys%20Survey.pdf} {Group Lens}
-	 \bibitem{7}
 	 R. Nowak
+	 ``ECE 830 Fall 2010 Statistical Signal Processing``
+	 2010 Paper.
 	 University of Wisconsin-Madison
-	 ECE 830 Fall 2010 Statistical Signal Processing
 	 \href{http://nowak.ece.wisc.edu/ece830/ece830_lecture24.pdf}{Signal Processing}
-	 \bibitem{8}
-	 Paul Resnick
-	 MIT Coordination Center for Science
-	 GroupLens: An Open Architecture for Collaborative
-Filtering of Netnews
-	\href{http://delivery.acm.org/10.1145/200000/192905/p175-resnick.pdf?ip=72.33.2.208&id=192905&acc=PUBLIC&key=066E7B0AFE2DCD37%2E4D4702B0C3E38B35%2E4D4702B0C3E38B35%2E4D4702B0C3E38B35&__acm__=1544639596_64ed1d6ccc2584122e84fe8f012afa64}{Collborative Filtering}
-	 \bibitem{9}
-	 Li-Yu Hu Min-Wei Huang, Shih-Wen Ke
-	 The distance function effect on k-nearest neighbor classification for medical datasets
-	\href{https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4978658/}{Distance Function}
 \end{thebibliography}
 
 \chapter*{Solutions}
@@ -464,7 +450,7 @@ Filtering of Netnews
   	\begin{enumerate}
     
   	\item {
-  	Comparing a user to itself with all the features will and K=1 will result in the users own features applied to itself.
+  	Comparing a user to itself with all the features and K=1 will result in the users own features applied to itself.
   	}
   	
     \item {
