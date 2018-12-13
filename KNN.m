@@ -96,11 +96,12 @@ load('users.mat');
 % 7 - cats_italian: number of italian restaurants a user has rated
 
 % select features and k for the problem here
-features = [1:7];
+features = [2,3];
 k = 1;
+knn_func = @neareset_neighbors_manhat; % neareset_neighbors_euclid;
 
 for neighbor_i = 1:height(neighbors)
-    [k_users, distances, k_ratings] = neareset_neighbors_euclid(neighbors(:, features), neighbors(neighbor_i, features), k, neighbors.noras_rating);
+    [k_users, distances, k_ratings] = knn_func(neighbors(:, features), neighbors(neighbor_i, features), k, neighbors.noras_rating);
     rating = compute_rating_majority(k_ratings);
     rating_diff(neighbor_i) = rating -  neighbors(neighbor_i, :).noras_rating;
 end
@@ -114,15 +115,16 @@ ylabel('Difference in actual vs predicted rating on neighbors');
 k_errors(k) = nnz(rating_diff);
 
 %% Iteration over K for the Problem
-k_end = 200; % make smaller to run faster
+k_end = 20; % make smaller to run faster
 
 for k = 1:k_end
     for neighbor_i = 1:height(neighbors)
-        [k_users, distances, k_ratings] = neareset_neighbors_euclid(neighbors(:, features), neighbors(neighbor_i, features), k,  neighbors.noras_rating);
+        [k_users, distances, k_ratings] = knn_func(neighbors(:, features), neighbors(neighbor_i, features), k,  neighbors.noras_rating);
         rating = compute_rating_majority(k_ratings);
         rating_diff(neighbor_i) = rating - neighbors(neighbor_i, :).noras_rating;
     end
     k_errors(k) = nnz(rating_diff);
+    k_errors_rmse(k) = sqrt(sum(rating_diff.^2)/length(rating_diff));
 end
 
 figure();
@@ -131,12 +133,34 @@ xlabel('k');
 ylabel('Number of Misratings');
 title('Iteration over K');
 
+figure();
+plot(1:k_end, k_errors_rmse);
+xlabel('k');
+ylabel('Root Mean Squared Error');
+title('Iteration over K');
 
-%% 3D plot
-% figure();
-% scatter(neighbors.useful, neighbors.review_count, 15, neighbor_ratings);
-% title('Users that have rated the restaurant');
+%% Iteration over Validation Data
+for k = 1:k_end
+    for neighbor_i = 1:height(test_users)
+        [k_users, distances, k_ratings] = knn_func(test_users(:, features), test_users(neighbor_i, features), k,  test_users.noras_rating);
+        rating = compute_rating_majority(k_ratings);
+        rating_diff(neighbor_i) = rating - test_users(neighbor_i, :).noras_rating;
+    end
+    k_errors(k) = nnz(rating_diff);
+    k_errors_rmse(k) = sqrt(sum(rating_diff.^2)/length(rating_diff));
+end
 
+figure();
+plot(1:k_end, k_errors);
+xlabel('k');
+ylabel('Number of Misratings');
+title('Validation Iteration over K');
+
+figure();
+plot(1:k_end, k_errors_rmse);
+xlabel('k');
+ylabel('Root Mean Squared Error');
+title('Validation Iteration over K');
 
 %% Data Helper Functions
 function [neighbors, test_users] = split_users(users, num_test)
@@ -166,11 +190,12 @@ function [closest_users, distance, k_ratings] = neareset_neighbors_euclid(neighb
 end
 
 
-function [closest_users, distance] = neareset_neighbors_manhat(neighbor_list, user, k)
+function [closest_users, distance, k_ratings] = neareset_neighbors_manhat(neighbor_list, user, k, ratings)
     distance = manhattan_dist(neighbor_list, user);
     [distance, Ind] = sort(distance); 
     ind_closest = Ind(1:k);
     closest_users = neighbor_list(ind_closest(:), :);
+    k_ratings = ratings(ind_closest);
     distance = distance(1:k);
 end
 
