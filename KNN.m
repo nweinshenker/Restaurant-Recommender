@@ -47,41 +47,6 @@ clc;
 %     'address': '5780 W Flamingo Rd', 'stars': 4.0
 % };
 
-
-% %% Load review data from JSON files
-% fid = fopen('noras_user_profile.json');
-% raw = fread(fid,inf);
-% str = char(raw);
-% fclose(fid);
-% users = jsondecode(str);
-% 
-% %% Make data matrix
-% u_ids = fieldnames(users);
-% 
-% for i=1:numel(u_ids)
-%     avg_rating(i) = users.(u_ids{i}).avg_rating;
-%     avg_restaurant_rating(i) = users.(u_ids{i}).avg_restaurant_rating;
-%     review_count(i) = users.(u_ids{i}).review_count;
-%     useful(i) = users.(u_ids{i}).useful;
-%     cats_pizza(i) = sum(strcmp(users.(u_ids{i}).categories, "Pizza"));
-%     cats_bar(i) = sum(strcmp(users.(u_ids{i}).categories, "Bars"));
-%     cats_italian(i) = sum(strcmp(users.(u_ids{i}).categories, "Italian"));
-%     noras_rating(i) = users.(u_ids{i}).noras_rating;
-% end
-% 
-% avg_rating = avg_rating';
-% avg_restaurant_rating = avg_restaurant_rating';
-% review_count = review_count';
-% useful = useful';
-% cats_pizza =cats_pizza';
-% cats_bar = cats_bar';
-% cats_italian = cats_italian';
-% noras_rating = noras_rating';
-% 
-% users = table(avg_rating, avg_restaurant_rating, review_count, useful, cats_pizza, cats_bar, cats_italian, noras_rating);
-% 
-% save('users.mat', 'users');
-
 load('users.mat');
 [neighbors, test_users] = split_users(users, 100);
 
@@ -95,14 +60,17 @@ load('users.mat');
 % 6 - cats_bar: number of bars a user has rated
 % 7 - cats_italian: number of italian restaurants a user has rated
 
-% select features and k for the problem here
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% select different values here
 features = [2,3];
-k = 1;
-knn_func = @neareset_neighbors_manhat; % neareset_neighbors_euclid;
+k = 1; % for evaluating 1 k value at a time
+knn_func = @neareset_neighbors_manhat; % neareset_neighbors_euclid, nearest_neighbors_manhat
+rating_func = @compute_rating_average; % compute_rating_average, compute_rating_majority
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 for neighbor_i = 1:height(neighbors)
     [k_users, distances, k_ratings] = knn_func(neighbors(:, features), neighbors(neighbor_i, features), k, neighbors.noras_rating);
-    rating = compute_rating_majority(k_ratings);
+    rating = rating_func(k_ratings);
     rating_diff(neighbor_i) = rating -  neighbors(neighbor_i, :).noras_rating;
 end
 
@@ -120,7 +88,7 @@ k_end = 20; % make smaller to run faster
 for k = 1:k_end
     for neighbor_i = 1:height(neighbors)
         [k_users, distances, k_ratings] = knn_func(neighbors(:, features), neighbors(neighbor_i, features), k,  neighbors.noras_rating);
-        rating = compute_rating_majority(k_ratings);
+        rating = rating_func(k_ratings);
         rating_diff(neighbor_i) = rating - neighbors(neighbor_i, :).noras_rating;
     end
     k_errors(k) = nnz(rating_diff);
@@ -143,7 +111,7 @@ title('Iteration over K');
 for k = 1:k_end
     for neighbor_i = 1:height(test_users)
         [k_users, distances, k_ratings] = knn_func(test_users(:, features), test_users(neighbor_i, features), k,  test_users.noras_rating);
-        rating = compute_rating_majority(k_ratings);
+        rating = rating_func(k_ratings);
         rating_diff(neighbor_i) = rating - test_users(neighbor_i, :).noras_rating;
     end
     k_errors(k) = nnz(rating_diff);
@@ -236,4 +204,9 @@ end
 
 function rating = compute_rating_majority(rating)
     rating = mode(rating);
+end
+
+
+function rating = compute_rating_average(rating)
+    rating = mean(rating);
 end

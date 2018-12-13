@@ -1,6 +1,8 @@
 % TODO go back and rewrite the abstract
 % TODO write equations for distance metric
 % TODO write equations for majority metric
+% TODO main activity question about kNN overfitting
+% TODO add Voroni diagram in warmup
 
 \documentclass{report}
 \usepackage[utf8]{inputenc}
@@ -108,7 +110,7 @@ Here we compute the percentage of points classified as either 1 or 0 in the neig
 \subsubsection*{Classification Decision Rule}
 Defining the decision boundaries of our k neighborhoods depends on k.
 \\
-With k = 1 for KNN, the predicted class of test sample x is set equal to the true class y of its nearest neighbor, where $m_{i}$ is a nearest neighbor to x if the distance \cite{7}
+With k = 1 for k-NN, the predicted class of test sample x is set equal to the true class y of its nearest neighbor, where $m_{i}$ is a nearest neighbor to x if the distance \cite{7}
 \begin{equation}
 d(m_{i},x) = min_{j}(d(m_{j},x))
 \end{equation} 
@@ -132,59 +134,108 @@ The other distance metric we will look into will be Manhattan distance
 d(x_{i},x_{j}) = |(x_{i1} - x_{j1})| + |(x_{i2} - x_{j2})| + ... + |(x_{ip} - x_{jp})|
 \end{equation}
 
-
-
-%Example matrix:
-%			\[
-%     			M=
-%  				\begin{bmatrix}
-%    					1 & 3 & ? & 3 & 1 \\
-%    					3 & 2 & 5 & 8 & 7 \\
-%    					3 & ? & 5 & ? & ? \\
-%    					9 & ? & 3 & 2 & 1
-%  				\end{bmatrix}
-%			\]
-%\textit{ where M is sparse (i.e., “with missing entries”, not “containing a lot of zeros”)}
-
-
-
-
-
 \section*{Warm-up}
-Here are a couple activites to warm up on k-NN 
-\begin{enumerate}
-	\item The below data are 2D points with their classification. If we were to add the point (1,1) using 3-NN (K = 3) what would be the classification of this point?
-	\begin{figure}[H]
-		\centering
-		\includegraphics{image/Picture1.png}
-	\end{figure}
-	\item Below is a diagram of points with classifications of either Red Triangle or Blue Square. A new point is introduced as the green circle. If the correct classification of the circle is Red Triangle, what k-values would misclassify this point? What does this tell us about having too large a k value
-	\begin{figure}[H]
-		\centering
-		\includegraphics{image/Picture2.png}
-	\end{figure}
-	\item How does raising the k value affect performance in data sets with a lot of noise? 
-	\item Consider taking a 2D data set and then transforming it to fit into a 3D space. How would raising the dimension of K-NN effect the accuracy of the classifier?
-	\item If the Minkowski distance is defined as: 
-	\begin{equation}
-	D (x, y) = ((\sum_{i}^{m}| x_{i} - y_{i}|^p)^\frac{1}{p})
-	\end{equation}
-     then when would you use Minkowski distance over Euclidean Distance?
-	
 
-\item Draw a Voronoi diagram
-\begin{figure}[H]
-		\centering
-		\includegraphics{image/Picture2.png}
-	\end{figure}
+\begin{enumerate}
+  \item Below is a diagram of points with classifications of either Red Triangle or Blue Square. 
+	\begin{figure}[H]
+	  \centering
+	  \includegraphics{image/Picture2.png}
+	\end{figure}  
+  	
+  	\begin{enumerate}
+  	  \item What is the classification of the green dot for the following k values using the majority classifier?
+  	    \begin{center}
+          \begin{tabular}{| l | l | l |}
+            \hline
+            k & Class \\ \hline
+            1 & \\
+            3 & \\
+            5 & \\
+			11 & \\            
+            \hline
+          \end{tabular}
+        \end{center} 
+        
+        \item How does increasing k affect the performance in data sets with a lot of noise?
+  	  \end{enumerate} 
+  
+  \item Use the table below to answer the following questions.
+    \begin{center}
+      \begin{tabular}{| l | l | l |}
+        \hline
+        Feature 1 & Feature 2 & Class \\ \hline
+        -1 & 1 & - \\
+        0 & 1 & + \\
+        0 & 2 & - \\
+        1 & -1 & - \\
+        1 & 0 & + \\
+        1 & 2 & + \\
+        2 & 2 & - \\
+        2 & 3 & + \\
+        \hline
+      \end{tabular}
+    \end{center} 
+  	
+  	\begin{enumerate}
+  	  \item Compute the Manhattan distance to a new point (1,1).
+        \begin{center}
+          \begin{tabular}{| l | l | l |}
+            \hline
+            Feature 1 & Feature 2 & Manhattan Distance \\ \hline
+            -1 & 1 &  \\
+            0 & 1 &  \\
+            0 & 2 &  \\
+            1 & -1 &  \\
+            1 & 0 &  \\
+            1 & 2 &  \\
+            2 & 2 &  \\
+            2 & 3 &  \\
+            \hline
+        \end{tabular}
+      \end{center}
+    
+    \item Using the majority classifier, what is the label applied to the new point (1,1) for the following k-Values?
+      \begin{center}
+        \begin{tabular}{| l | l | l |}
+          \hline
+          k & Class \\ \hline
+          1 & \\
+          3 & \\
+          4 & \\
+          \hline
+        \end{tabular}
+      \end{center}       	  
+  	\end{enumerate}
+
+  \item Which of the following will be true both statements? \\
+
+	1 - k-NN is a memory-based approach is that the classifier immediately adapts as we collect new training data. \\
+	2 - The computational complexity for classifying new samples grows linearly with the number of samples in the training dataset in the worst-case scenario. \\ \\
+		A) 1 \\
+		B) 2 \\
+		C) 1 and 2 \\
+		D) None of these \\
+
 \end{enumerate}
 
 \section*{Main Activity}
 
-The main activity will be evaluating a KNN as a restaurant recommendation system using the Yelp dataset from \href{https://www.yelp.com/dataset}{https://www.yelp.com/dataset}.
+The main activity will be evaluating a k-NN as a restaurant recommendation system using the Yelp dataset from \href{https://www.yelp.com/dataset}{https://www.yelp.com/dataset} using KNN.m and users.mat.
 The dataset originally contains 5,996,996 reviews for 188,593 businesses in 10 metropolitan areas.
-We preprocessed the data set to narrow it down to 1 restaurant with 500 reviews for the activity, therefore we will be doing a user-user comparison.  
-The activity will done using the Matlab script KNN.m.
+We preprocessed the data set to narrow it down to 1 restaurant and 500 reviews for the restaurant for the activity. The activity will be doing a user-user comparison to the users that have rated the restaurant.
+The following features are available for use in the problem. 
+The first 3 were taken directly from the user's profile, and the last 4 were derived from the users other reviews.
+\begin{enumerate}
+\item avg_rating: The average rating the user has given to all businesses they have rated.
+\item review_count: The total number of reviews a user has given.
+\item useful: Number of "useful" votes the user has given.
+\item avg_restaurant_rating: The average rating the user has given to businesses classified as restaurants.
+\item cats_pizza: The number of businesses classified as a pizza restaurant the user has been to.
+\item cats_bar: The number of businesses classified as a bar the user as been to.
+\item cats_italian: The number of businesses classified as an Italian restaurant the user as been to.
+\end{enumerate}
+The restaurant being evaluated is 
 
 
 \begin{enumerate}
