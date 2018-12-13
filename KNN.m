@@ -97,7 +97,7 @@ for k = 1:k_end
     k_errors(k) = nnz(rating_diff);
     k_errors_rmse(k) = sqrt(sum(rating_diff.^2)/length(rating_diff));
 end
-
+% 
 figure();
 plot(1:k_end, k_errors);
 xlabel('k');
