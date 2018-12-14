@@ -27,15 +27,15 @@
 \chapter*{Abstract}
 Recommendation systems are a vital tool for providing users with personalized suggestions for items such as movies, music, and restaurants.
 Product review data is widely accessible on services such as Spotify, Amazon, and Yelp.
-There are two approaches that can be used to make recommendations to users based on this data, memory based, and model based.
-Model based systems rely on approximating the data and determining features that are most likely to influence a users rating on an item. 
-Matrix Decomposition methods such a SVD are an example of a model based system used to provide recommendations.
-Over time models can become outdated and need to be updated to provide a more accurate recommendation.
-Memory based systems rely upon maintaining data and finding users or items that are similar to each other.
-The advantage of a memory based system is it doesn't learn a model or make any assumptions about the data so if trends change the recommendation system will adapt.
+There are two main approaches that can be used to make recommendations to users based on user data: memory based and model based.
+Model based systems rely on approximating the data and determining features that are most likely to influence a users' rating of an item. 
+Matrix Decomposition methods,such a SVD, are an example of a model based system used to provide recommendations.
+Over time, models can become outdated and need to be updated to provide a more accurate recommendation.
+For this reason, memory based systems rely upon maintaining data and finding users or items that are similar to each other.
+The advantage of a memory based system is it doesn't learn a model or make any assumptions about the data, so if trends change ,the recommendation system will adapt.
 Memory based systems can do a user-user comparison or and item-item comparison.
-In the user-user comparison, a user is compared to other users that have rated an item and in the item-item comparison, an item is compared to other items a user has rated to predict the rating the user will give it.
-We will further study a memory based recommendation systems, K Nearest Neighbors. After this activity, you should have a firm understanding of how K Nearest Neighbors is affected by 1) choosing different K values; 2)adding more features to our feature matrix; 3) evaluating different distance functions; and 4) changing the classification decision rule.
+In the user-user comparison, a user is compared to other users that have rated an item, and in the item-item comparison, an item is compared to other items a user has rated to predict the rating the a perspective sample user will give it.
+In this activity, we will further study a memory based recommendation system, K Nearest Neighbors. After this activity, you should have a firm understanding of how K Nearest Neighbors is affected by 1) choosing different K values; 2) adding more features to our feature matrix; 3) evaluating different measurements of distance; and 4) changing the models classification decision rule.
 
 \chapter*{Background Information}
 	
@@ -56,7 +56,7 @@ used them to predict whether or not other readers would like an article before t
   \caption{K Nearest Neighbour}
   \begin{algorithmic}
   	\State Classify (X,Y,x) // X:training data, Y: class labels of X, x:unknown sample
-	\For{ t = 1 to T}
+	\For{ t = 1 to sizeof(X)}
 	\State Compute the distance between $d(X, x)$
 	\State Sort all the distances in ascending order
 	\EndFor
@@ -64,7 +64,7 @@ used them to predict whether or not other readers would like an article before t
 	\State return the set of k closest points 
   \end{algorithmic}
 \end{algorithm}
-\textsubscript{Our pseudocode will serve as the map for our derivation.}
+
 
 \subsection*{K}
 
@@ -118,6 +118,8 @@ The majority classifier applies the most frequent label of the k neighbors to th
 \subsection*{Nearest Neighbor Classification Derivation}
 
 \paragraph*{Terminology and Notation }\cite{4}
+\\ \\
+In this section, will use discuss how K Nearest Neighbors works, and how the algorithm computes it's nearest neighbors.
 
 \begin{enumerate}
 	\item P(A $|$ B), the conditional probability, is the probability of A given B
